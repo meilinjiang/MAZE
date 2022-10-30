@@ -1,0 +1,92 @@
+---
+title: "MAZE: Mediation Analysis for ZEro-inflated mediators"
+author:
+- Zhigang Li
+- Meilin Jiang
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MAZE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## 1. Introduction
+
+The causal mediation analysis is a statistical technique to investigate and identify relationships in a causal mechanism involving one or more intermediate variables (i.e., mediators) between an independent variable and an outcome. In addition to a better understanding of the causal pathways in proposed theoretical mechanisms, mediation analyses can help to confirm and refine treatments when it is not possible or ethical to intervene the independent variable.
+
+However, challenges arise in mediation analyses in datasets with an excessive number of zero data point for mediators, especially in count data or non-negative measurements. The standard mediation analysis approaches may not be valid due to the violation of distributional assumptions. Moreover, the excessive zero mediator values could contain both true and false zeros. A true zero means that the measurement is truly zero, while a false zero means the measurement is positive but might be too small to be detected given the accuracy of devices used. Therefore, there is an unmet need for mediation analysis approaches to account for the zero-inflated structures of these mediators.
+
+To address the difficulties, we proposed a novel mediation analysis approach to estimate and test direct and indirect effects to handle zero-inflated mediators that are non-negative. The zero-inflated log-normal (ZILoN), zero-inflated negative binomial (ZINB), and zero-inflated Poisson (ZIP) mediators were considered as the possible options of distributions for these mediators. 
+
+The R package "*MAZE*" implements the proposed causal mediation analysis approach for zero-inflated mediators in the corresponding paper to estimate and test natural indirect effect (NIE). Given the zero-inflated nature, the mediation effect (i.e., NIE) can be decomposed in to two components NIE$_1$ and NIE$_2$.
+
+## 2. Model
+For an independent variable $X$, a zero-inflated mediator $M$ and a continuous outcome variable $Y$, the following regression equation is used to model the association between $Y$ and $(X,M)$:
+$$Y = \beta_0 + \beta_1M + \beta_21_{(M>0)} + \beta_3X + \beta_4X1_{(M>0)} \epsilon$$
+where $1_{(\cdot)}$ is the indicator function, $\beta_0,\beta_1,\beta_2,\beta_3,\beta_4$ are regression coefficients, and $\epsilon$ is the random error following the normal distribution $N(0,\delta^2)$. 
+
+## 3. Installing the package
+The R package "MAZE" can be installed from the Github webpage.
+```{r,eval=F}
+require(devtools)
+devtools::install_github("https://github.com/meilinjiang/MAZE", build_vignettes = TRUE)
+library(MAZE)
+```
+
+## 4. Main function "MAZE()"
+To estimate and test CDE, NDE, NIE, NIE$_1$, and NIE$_2$, the R function "MAZE()" is used to implement the proposed mediation analysis approach for zero-inflated mediators.
+
+### 4.1 Input arguments
+
+The input arguments to the function are\
+* $\texttt{data}$: a data frame containing variables X, M, and Y\
+\* $\texttt{distM}$: an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC\
+\* $\texttt{X}$: variable name of the independent variable\
+\* $\texttt{M}$: variable name of the mediator variable\
+\* $\texttt{Y}$: variable name of the outcome variable (continuous)\
+\* $\texttt{x1}$: the first value of independent variable of interest\
+\* $\texttt{x2}$: the second value of independent variable of interest\
+\* $\texttt{B}$: the upper bound value B to be used in the probability mechanism of observing false zeros\
+\* $\texttt{seed}$: an optional seed number to control randomness for reproducibility. The default is 1
+
+### 4.2 Outputs
+
+A list object containing\
+\* $\texttt{results1_parameter}$: a data frame for the results of model parameters \
+* $\texttt{results2_MedZIL}$: a data frame for the results of estimated mediation effect\
+\* $\texttt{BIC}$: a numeric value for the BIC of the final mediation model\
+\* $\texttt{AIC}$: a numeric value for the AIC of the final mediation model\
+\* $\texttt{selected_disM}$: a character value for the distribution of M selected in the final mediation model
+
+## 5. Example
+The package contains an example dataset $\texttt{zip10}$ that was generated using the proposed model with a zero-inflated Poisson mediator. It is a data frame with 300 observations and 3 variables: a continuous independent variable $\texttt{X}$, a continuous outcome $\texttt{Y}$, and a count mediator variable $\texttt{Mobs}$. The mediator variable contains approximately 7% zero values with about half are false zeros. 
+```{r,eval=F}
+# load the example dataset "zip10"
+data(zip10)
+# call MAZE() to perform analysis
+maze_out <- MAZE(data=zip10, 
+                  distM=c('zilonm', 'zinbm', 'zipm'), 
+                  X='X', 
+                  M='Mobs', 
+                  Y='Y', 
+                  x1=0, 
+                  x2=1, 
+                  B=20, 
+                  seed=1)
+
+## results of selected mediation model
+maze_out$results_effects # NIE, NIE1, and NIE2
+maze_out$results_parameters # model parameters
+maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
+maze_out$selected_disM # distribution of the mediator in the selected mediation model
+
+```
+
