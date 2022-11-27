@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // loghicpp_all
-NumericMatrix loghicpp_all(NumericVector X_group2, NumericVector Y_group2, NumericMatrix mu, double sig, double beta0, double beta1, double beta2, double beta3, double beta4, double delta, double eta, List nodes, List weights, double C);
-RcppExport SEXP _MAZE_loghicpp_all(SEXP X_group2SEXP, SEXP Y_group2SEXP, SEXP muSEXP, SEXP sigSEXP, SEXP beta0SEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP beta3SEXP, SEXP beta4SEXP, SEXP deltaSEXP, SEXP etaSEXP, SEXP nodesSEXP, SEXP weightsSEXP, SEXP CSEXP) {
+NumericMatrix loghicpp_all(NumericVector X_group2, NumericVector Y_group2, NumericMatrix mu, double sig, NumericVector Ypart, double beta1, double delta, double eta, List nodes, List weights, double C);
+RcppExport SEXP _MAZE_loghicpp_all(SEXP X_group2SEXP, SEXP Y_group2SEXP, SEXP muSEXP, SEXP sigSEXP, SEXP YpartSEXP, SEXP beta1SEXP, SEXP deltaSEXP, SEXP etaSEXP, SEXP nodesSEXP, SEXP weightsSEXP, SEXP CSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,23 +20,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type Y_group2(Y_group2SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type mu(muSEXP);
     Rcpp::traits::input_parameter< double >::type sig(sigSEXP);
-    Rcpp::traits::input_parameter< double >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Ypart(YpartSEXP);
     Rcpp::traits::input_parameter< double >::type beta1(beta1SEXP);
-    Rcpp::traits::input_parameter< double >::type beta2(beta2SEXP);
-    Rcpp::traits::input_parameter< double >::type beta3(beta3SEXP);
-    Rcpp::traits::input_parameter< double >::type beta4(beta4SEXP);
     Rcpp::traits::input_parameter< double >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< double >::type eta(etaSEXP);
     Rcpp::traits::input_parameter< List >::type nodes(nodesSEXP);
     Rcpp::traits::input_parameter< List >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< double >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(loghicpp_all(X_group2, Y_group2, mu, sig, beta0, beta1, beta2, beta3, beta4, delta, eta, nodes, weights, C));
+    rcpp_result_gen = Rcpp::wrap(loghicpp_all(X_group2, Y_group2, mu, sig, Ypart, beta1, delta, eta, nodes, weights, C));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_MAZE_loghicpp_all", (DL_FUNC) &_MAZE_loghicpp_all, 14},
+    {"_MAZE_loghicpp_all", (DL_FUNC) &_MAZE_loghicpp_all, 11},
     {NULL, NULL, 0}
 };
 

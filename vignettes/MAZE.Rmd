@@ -5,6 +5,9 @@ author:
 - Meilin Jiang
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
+  # pdf_document: default
+  # html_document:
+  #   df_print: paged
 vignette: >
   %\VignetteIndexEntry{MAZE}
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,61 +29,179 @@ However, challenges arise in mediation analyses in datasets with an excessive nu
 
 To address the difficulties, we proposed a novel mediation analysis approach to estimate and test direct and indirect effects to handle zero-inflated mediators that are non-negative. The zero-inflated log-normal (ZILoN), zero-inflated negative binomial (ZINB), and zero-inflated Poisson (ZIP) mediators were considered as the possible options of distributions for these mediators. 
 
-The R package "*MAZE*" implements the proposed causal mediation analysis approach for zero-inflated mediators in the corresponding paper to estimate and test natural indirect effect (NIE). Given the zero-inflated nature, the mediation effect (i.e., NIE) can be decomposed in to two components NIE$_1$ and NIE$_2$.
+The R package `MAZE` implements the proposed causal mediation analysis approach for zero-inflated mediators in the corresponding paper to estimate and test natural indirect effect (NIE). Given the zero-inflated nature, the mediation effect (i.e., NIE) can be decomposed in to two components NIE$_1$ and NIE$_2$.
 
 ## 2. Model
 For an independent variable $X$, a zero-inflated mediator $M$ and a continuous outcome variable $Y$, the following regression equation is used to model the association between $Y$ and $(X,M)$:
-$$Y = \beta_0 + \beta_1M + \beta_21_{(M>0)} + \beta_3X + \beta_4X1_{(M>0)} \epsilon$$
-where $1_{(\cdot)}$ is the indicator function, $\beta_0,\beta_1,\beta_2,\beta_3,\beta_4$ are regression coefficients, and $\epsilon$ is the random error following the normal distribution $N(0,\delta^2)$. 
+\begin{align}
+Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon, \label{ymodel}
+\end{align}
+where $Y_{xm1_{(m>0)}}$ is the potential outcome of $Y$ when $(X, M, 1_{(M>0)})$ take the value of $(x,m,1_{(m>0)})$, $1_{(\cdot)}$ is an indicator function.
+Equation (\ref{ymodel}) is an regression model where $\beta_0,\beta_1,\beta_2,\beta_3,\beta_4,\beta_5$ are regression coefficients and $\epsilon$ is the random error following the normal distribution $N(0,\delta^2)$.
+Notice that interactions between $X$ and the two mediators $M$ and $1_{(M>0)}$ can be accommodated by the product terms $\beta_4X1_{(M>0)}$ and $\beta_5XM$ in the model, which is an advantage of potential-outcomes mediation analysis approaches. Users can specify whether to include either one, both, or none of the possible interactions.
 
-## 3. Installing the package
-The R package "MAZE" can be installed from the Github webpage.
+### 2.1 Zero-inflated mediators
+#### 2.1.1 Zero-inflated log-normal (ZILoN) mediators
+For a ZILoN mediator, its two-part density function can be rewritten as: 
+\begin{align}
+&  f(m;\theta)=\begin{cases}
+    \Delta, & m=0\\
+    (1-\Delta)\phi(m;\mu,\sigma), &m>0
+  \end{cases}, \label{zilon}
+\end{align}
+where $\phi(\cdot)$ is the density function of the log-normal distribution indexed by the parameters $\mu$ and $\sigma$ which are the expected value and standard deviation, respectively, of the random variable after natural-log transformation. 
+
+The ZILoN mediator $M$ depends on $X$ through the following equations: 
+\begin{align}
+&\mu=\alpha_{0}+\alpha_{1}X, \label{transzilon1}\\
+&\log{\bigg(\frac{\Delta}{1-\Delta}\bigg)}=\gamma_0+\gamma_1X.  \label{transzilon2}
+\end{align}
+Equations (\ref{ymodel}), (\ref{transzilon1}) and (\ref{transzilon2}) together form the full mediation model for a ZILoN mediator and a continuous outcome.
+
+#### 2.1.2 Zero-inflated negative binomial (ZINB) mediators
+The two-part density function for a ZINB mediator $M$ is given by:
+\begin{align}
+&  f(m;\theta)=\begin{cases}
+    \Delta=\Delta^*+(1-\Delta^*)(\frac{r}{r+\mu})^r, & m=0\\\\
+    (1-\Delta) \frac{\Gamma(r+m)}{\Gamma(r)m!}\frac{(\frac{\mu}{r+\mu})^m}{(\frac{r}{r+\mu})^{-r}-1}, & m=1,2,\dots
+  \end{cases}, \label{zinb}
+\end{align}
+where the parameter vector $(\mu,r)^T$ controls the number of zeros generated from the NB distribution, $0<\Delta^*<1$ is the parameter controlling the number of excessive zeros (i.e., not generated from the NB distribution), $r$ is the dispersion parameter, and $\mu$ is the expectation of the negative binomial distribution. The ZINB mediator $M$ depends on $X$ through the following equations: 
+\begin{align}
+&\log(\mu)=\alpha_{0}+\alpha_{1}X, \label{transzinb1}\\
+&\log{\bigg(\frac{\Delta^*}{1-\Delta^*}\bigg)}=\gamma_0+\gamma_1X.  \label{transzinb2}
+\end{align}
+Equations (\ref{ymodel}), (\ref{transzinb1}) and (\ref{transzinb2}) together form the full mediation model for a ZINB mediator and a continuous outcome. 
+
+#### 2.1.3 Zero-inflated Poisson (ZIP) mediators
+The two-part density function for a ZIP mediator can be rewritten as: 
+\begin{align}
+&  f(m;\theta)=\begin{cases}
+    \Delta=\Delta^*+(1-\Delta^*)\exp{(-\lambda)}, & m=0\\
+    (1-\Delta)\frac{\lambda^m}{m! (\exp{(\lambda)}-1)}, & m=1,2,\dots
+  \end{cases}, \label{zip}
+\end{align}
+where $\lambda>0$ is the mean of the Poisson distribution. $\lambda$ controls the number of zeros generated by the data generating process underlying the Poisson distribution, while $0<\Delta^*<1$ controls the number of excessive zeros in addition to zeros from the Poisson distribution. The ZIP mediator $M$ depends on $X$ through the following equations: 
+\begin{align}
+&\log{(\lambda)}=\alpha_0+\alpha_1X , \label{transzip1}\\
+&\log{\bigg(\frac{\Delta^*}{1-\Delta^*}\bigg)}=\gamma_0+\gamma_1X. \label{transzip2}
+\end{align}
+Equations (1), (\ref{transzip1}) and (\ref{transzip2}) together form the full mediation model for a ZIP mediator and a continuous outcome. 
+
+### 2.2 Probability mechanism for observing false zeros
+It is common to observe two types of zeros for $M$ in a data set with excessive zeros: true zeros and false zeros. We use $M$ to denote the true value of the mediator and use $M^*$ for the observed value of $M$. When the observed value of the mediator is positive (i.e., $M^*>0$), we assume  $M^*=M$. However, when $M^*=0$, we don't know whether $M$ is truly zero or $M$ is positive but incorrectly observed as zero. We consider the following mechanism for observing a zero: 
+
+\begin{equation}\label{zeroMecha}
+  P(M^*=0|M)=\begin{cases}
+    \exp(-\eta^2 M), & M\le B\\
+    0, &M>B
+  \end{cases},
+\end{equation}
+where the parameter $\eta$ needs to be estimated, and $B>0$ is a known constant. The value of $B$ can be informed on the basis of the insights and judgements of professionals in the specific field from which the data arose.
+
+### 2.3 Mediation effect and direct effect
+The natural indirect effect (NIE), natural direct effects (NDE) and controlled direct effect (CDE) are derived for the proposed mediation model. The NIE is also called the mediation effect. The total effect of the independent variable $X$ is equal to the summation of NIE and NDE. Let $M_x$ denote the value of $M$ if $X$ is taking the value of $x$. Let $1_{(M_x>0)}$ denote the value of $1_{(M>0)}$ if $X$ takes the value of $x$. The average NIE, NDE and CDE if $X$ changes from $x_1$ to $x_2$ are given by:
+\begin{align}
+&\text{NIE}=E\big(Y_{x_2M_{x_2}1_{(M_{x_2}>0)}}-Y_{x_2M_{x_1}1_{(M_{x_1}>0)}}\big), \label{defNIE}\\
+&\text{NDE}=E\big(Y_{x_2 M_{x_1}1_{(M_{x_1}>0)}}-Y_{x_1 M_{x_1}1_{(M_{x_1}>0)}}\big), \label{defNDE}\\
+&\text{CDE}=E\big(Y_{x_2 m1_{(m>0)}}-Y_{x_1 m1_{(m>0)}}\big),\hspace{0.1cm}\text{for a fixed (i.e., controlled) value of}\hspace{0.1cm} M, \label{defCDE}
+\end{align}
+
+Based on the sequential order of the two mediators $M$ and $1_{(M>0)}$, NIE can be further decomposed: 
+\begin{align}
+\text{NIE}&=E\big(Y_{x_2M_{x_2}1_{(M_{x_2}>0)}}-Y_{x_2M_{x_1}1_{(M_{x_1}>0)}}\big)\nonumber\\
+&=E\big(Y_{x_2M_{x_2}1_{(M_{x_2}>0)}} - Y_{x_2M_{x_1}1_{(M_{x_2}>0)}}\big) + E\big(Y_{x_2M_{x_1}1_{(M_{x_2}>0)}}  - Y_{x_2M_{x_1}1_{(M_{x_1}>0)}}\big) \nonumber\\
+&:= \text{NIE}_1+\text{NIE}_2, \label{decomposeNIE}
+\end{align}
+where NIE$_1$ is the mediation effect through $M$ summing the two causal pathways $X\rightarrow M\rightarrow Y$ and $X\rightarrow M\rightarrow 1_{(M>0)}\rightarrow Y$, and $\text{NIE}_2$ is the mediation effect through only $1_{(M>0)}$ on the causal pathway $X\rightarrow 1_{(M>0)}\rightarrow Y$. 
+
+#### 2.3.1 Effects for ZILoN mediators
+\begin{align*}
+\text{NIE}_1&=(\beta_1+\beta_5x_2)\Bigg[(1-\Delta_{x_2})\exp{\Big(\mu_{x_2}+\frac{\sigma^2}{2}\Big)}-(1-\Delta_{x_1})\exp{\Big(\mu_{x_1}+\frac{\sigma^2}{2}\Big)}\Bigg], \\
+\text{NIE}_2&=(\beta_2+\beta_4x_2)(\Delta_{x_1}-\Delta_{x_2}), \\
+\text{NDE}&=(x_2-x_1)\Bigg\{\beta_3+(1-\Delta_{x_1})\Big[\beta_4+\beta_5\exp{\Big(\mu_{x_1}+\frac{\sigma^2}{2}\Big)\Big]}\Bigg\}, \\
+\text{CDE}&=(x_2-x_1)\big(\beta_3+\beta_41_{(m>0)}+\beta_5m\big).
+\end{align*}
+
+#### 2.3.2 Effects for ZINB mediators
+\begin{align*}
+\text{NIE}_1&=(\beta_1+\beta_5x_2) \Bigg[(1-\Delta^*_{x_2})\mu_{x_2}-(1-\Delta^*_{x_1})\mu_{x_1}\Bigg],\\
+\text{NIE}_2&=(\beta_2+\beta_4 x_2) \Bigg\{\big(1-\Delta^*_{x_2}\big)\Big[1-(\frac{r}{r+\mu_{x_2}})^{r}\Big]-\big(1-\Delta^*_{x_1}\big)\Big[1-(\frac{r}{r+\mu_{x_1}})^{r}\Big]\Bigg\},\\
+\text{NDE}&=(x_2-x_1)\Bigg\{\beta_3+(1-\Delta^*_{x_1})\bigg[\beta_4\Big(1-(\frac{r}{r+\mu_{x_1}})^{r}\Big)+\beta_5\mu_{x_1}\bigg]\Bigg\},\\
+\text{CDE}&=(x_2-x_1)\big(\beta_3+\beta_41_{(m>0)}+\beta_5m\big).
+\end{align*}
+
+#### 2.3.3 Effects for ZIP mediators
+\begin{align*}
+\text{NIE}_1&=(\beta_1+\beta_5x_2) \Big[(1-\Delta^*_{x_2})\lambda_{x_2}-(1-\Delta^*_{x_1})\lambda_{x_1}\Big],\\
+\text{NIE}_2&=(\beta_2+\beta_4 x_2) \Bigg\{\big(1-\Delta^*_{x_2}\big)\Big[1-\exp{(-\lambda_{x_2})}\Big]-\big(1-\Delta^*_{x_1}\big)\Big[1-\exp{(-\lambda_{x_1})}\Big]\Bigg\},\\
+\text{NDE}&=(x_2-x_1)\Bigg\{\beta_3+(1-\Delta^*_{x_1})\bigg[\beta_4\Big(1-\exp{(-\lambda_{x_1})}\Big)+\beta_5\lambda_{x_1}\bigg]\Bigg\},\\
+\text{CDE}&=(x_2-x_1)\big(\beta_3+\beta_41_{(m>0)}+\beta_5m\big).
+\end{align*}
+
+
+## 3. Installing the R package
+The R package `MAZE` can be installed from the Github webpage.
 ```{r,eval=F}
 require(devtools)
 devtools::install_github("https://github.com/meilinjiang/MAZE", build_vignettes = TRUE)
 library(MAZE)
 ```
 
-## 4. Main function "MAZE()"
-To estimate and test CDE, NDE, NIE, NIE$_1$, and NIE$_2$, the R function "MAZE()" is used to implement the proposed mediation analysis approach for zero-inflated mediators.
+## 4. Main function `MAZE()`
+To estimate and test CDE, NDE, NIE, NIE$_1$, and NIE$_2$, the R function `MAZE` is used to implement the proposed mediation analysis approach for zero-inflated mediators.
 
 ### 4.1 Input arguments
 
-The input arguments to the function are\
-* $\texttt{data}$: a data frame containing variables X, M, and Y\
-\* $\texttt{distM}$: an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC\
-\* $\texttt{X}$: variable name of the independent variable\
-\* $\texttt{M}$: variable name of the mediator variable\
-\* $\texttt{Y}$: variable name of the outcome variable (continuous)\
-\* $\texttt{x1}$: the first value of independent variable of interest\
-\* $\texttt{x2}$: the second value of independent variable of interest\
-\* $\texttt{B}$: the upper bound value B to be used in the probability mechanism of observing false zeros\
-\* $\texttt{seed}$: an optional seed number to control randomness for reproducibility. The default is 1
+The input arguments to the function are
+
+- `data`: a data frame containing variables X, M, Y, and Z (if any)
+
+- `distM`: an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC
+
+- `X`: variable name of the independent variable
+
+- `M`: variable name of the mediator variable
+
+- `Y`: variable name of the outcome variable (continuous)
+
+- `Z`: name(s) of confounder variables
+
+- `x1`: the first value of independent variable of interest
+
+- `x2`: the second value of independent variable of interest
+
+- `zval`: the value of confounders to be conditional on in estimating effects
+
+- `B`: the upper bound value B to be used in the probability mechanism of observing false zeros
+
+- `seed`: an optional seed number to control randomness for reproducibility. The default is 1
 
 ### 4.2 Outputs
 
-A list object containing\
-\* $\texttt{results1_parameter}$: a data frame for the results of model parameters \
-* $\texttt{results2_MedZIL}$: a data frame for the results of estimated mediation effect\
-\* $\texttt{BIC}$: a numeric value for the BIC of the final mediation model\
-\* $\texttt{AIC}$: a numeric value for the AIC of the final mediation model\
-\* $\texttt{selected_disM}$: a character value for the distribution of M selected in the final mediation model
+A list object containing
+
+- `results_effects`: a data frame for the results of estimated mediation effect
+
+- `results_parameters`: a data frame for the results of model parameters
+
+- `BIC`: a numeric value for the BIC of the final mediation model
+
+- `AIC`: a numeric value for the AIC of the final mediation model
+
+- `selected_disM`: a character value for the distribution of M selected in the final mediation model
 
 ## 5. Example
-The package contains an example dataset $\texttt{zip10}$ that was generated using the proposed model with a zero-inflated Poisson mediator. It is a data frame with 300 observations and 3 variables: a continuous independent variable $\texttt{X}$, a continuous outcome $\texttt{Y}$, and a count mediator variable $\texttt{Mobs}$. The mediator variable contains approximately 7% zero values with about half are false zeros. 
+The package contains an example dataset `zip10` that was generated using the proposed model with a zero-inflated Poisson mediator. It is a data frame with 300 observations and 3 variables: a continuous independent variable `X`, a continuous outcome `Y`, and a count mediator variable `Mobs`. The mediator variable contains approximately 7% zero values with about half are false zeros. 
 ```{r,eval=F}
 # load the example dataset "zip10"
 data(zip10)
 # call MAZE() to perform analysis
 maze_out <- MAZE(data=zip10, 
-                  distM=c('zilonm', 'zinbm', 'zipm'), 
-                  X='X', 
-                  M='Mobs', 
-                  Y='Y', 
-                  x1=0, 
-                  x2=1, 
-                  B=20, 
-                  seed=1)
+                 distM=c('zilonm', 'zinbm', 'zipm'), 
+                 X='X', M='Mobs', Y='Y', Z=NULL, 
+                 x1=0, x2=1, 
+                 B=20, seed=1)
 
 ## results of selected mediation model
 maze_out$results_effects # NIE, NIE1, and NIE2
@@ -89,4 +210,10 @@ maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 maze_out$selected_disM # distribution of the mediator in the selected mediation model
 
 ```
+
+Session Info
+```{r}
+sessionInfo()
+```
+
 
