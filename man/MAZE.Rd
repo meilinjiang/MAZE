@@ -7,6 +7,8 @@
 MAZE(
   data,
   distM = c("zilonm", "zinbm", "zipm"),
+  K = 1,
+  selection = "AIC",
   X,
   M,
   Y,
@@ -15,13 +17,18 @@ MAZE(
   x2,
   zval = NULL,
   B = 20,
-  seed = 1
+  seed = 1,
+  ncore = 1
 )
 }
 \arguments{
-\item{data}{a data frame containing variables an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zip10)}
+\item{data}{a data frame containing variables: an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zip10)}
 
 \item{distM}{an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC}
+
+\item{K}{a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators}
+
+\item{selection}{model selection criterion to be used when more than one model is fitted. Possible choices are 'AIC' and 'BIC'. Default is 'AIC'.}
 
 \item{X}{name of the independent variable}
 
@@ -40,15 +47,18 @@ MAZE(
 \item{B}{the upper bound value B to be used in the probability mechanism of observing false zeros}
 
 \item{seed}{an optional seed number to control randomness}
+
+\item{ncore}{number of cores available for parallel computing}
 }
 \value{
 a list containing:
 \itemize{
 \item results_effects: a data frame for the results of estimated mediation effect,
 \item results_parameters: a data frame for the results of model parameters,
+\item selected_model_name: a string for the distribution of M and number of components K selected in the final mediation model
 \item BIC: a numeric value for the BIC of the final mediation model,
 \item AIC: a numeric value for the AIC of the final mediation model,
-\item selected_distM: a character value for the distribution of M selected in the final mediation model
+\item models: a list with all fitted models
 }
 }
 \description{
@@ -57,13 +67,13 @@ Mediation Analysis for ZEro-inflated mediators
 \details{
 A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros.
 
-For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between $Y$ and $(X,M)$:
+For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between \eqn{Y} and \eqn{(X,M)}:
 \deqn{Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon}
 }
 \examples{
 data(zip10)
 \dontrun{
-MAZE(data=zip10, distM=c('zilonm', 'zinbm', 'zipm'), 
+MAZE(data=zip10, distM=c('zilonm', 'zinbm', 'zipm'), K = 1, selection = 'AIC',
 X='X', M='Mobs', Y='Y', Z=NULL, x1=0, x2=1, B=20, seed=1)
 }
 }

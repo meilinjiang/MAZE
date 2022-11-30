@@ -11,8 +11,8 @@ euclidean_dist <- function(p, q) {
     sqrt(sum((q - p)^2))
 }
 
-results <- function(est, se, init = NA, d = 2, ci_lb = NULL, ci_ub = NULL,
-    pval = NULL) {
+results <- function(est, se, init = NA, d = 5, ci_lb = NULL,
+    ci_ub = NULL, pval = NULL) {
     # 95% CI
     if (is.null(ci_lb) & is.null(ci_ub)) {
         ci_lb <- est - qnorm(0.975) * se
@@ -20,13 +20,14 @@ results <- function(est, se, init = NA, d = 2, ci_lb = NULL, ci_ub = NULL,
     }
     if (is.null(pval)) {
         pval <- (1 - pnorm(abs(est/se))) * 2
-        # pval <- ( 1-pt(abs(est/se),df=dim(dat)[1]-1) )*2
+        # pval <- ( 1-pt(abs(est/se),df=dim(dat)[1]-1)
+        # )*2
     }
 
-    out <- data.frame(Estimate = est, SE = se, CI_lower = ci_lb, CI_upper = ci_ub,
-        Pvalue = pval)
-    # if (is.na(init)[1]) { out <- out[, -1] }
-    out <- round(out, d)
+    out <- data.frame(Initials=init, Estimate = est, SE = se, CI_lower = ci_lb,
+        CI_upper = ci_ub, Pvalue = pval)
+    if (is.na(init)[1]) { out <- out[, -1] }
+    # out <- round(out, d)
     return(out)
 }
 

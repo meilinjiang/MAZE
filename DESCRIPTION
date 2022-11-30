@@ -27,4 +27,4 @@ VignetteBuilder: knitr
 LinkingTo: 
     Rcpp
 Imports: 
-    Rcpp, numDeriv, stats
+    Rcpp, numDeriv, stats, foreach, doParallel
