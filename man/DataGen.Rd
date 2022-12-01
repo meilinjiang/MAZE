@@ -26,6 +26,7 @@ DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL)
 \item{zval}{the value of confounders to be conditional on in estimating effects}
 }
 \value{
+true_eff: a vector containing true effects
 dat: a data frame containing variables:
 \itemize{
 \item X: an independent variable,
@@ -33,7 +34,6 @@ dat: a data frame containing variables:
 \item M: true mediator values,
 \item Y: an outcome,
 \item Z: confounder variables (if any)
-true_eff: a vector containing true effects
 }
 }
 \description{
@@ -44,13 +44,16 @@ betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8)
 delta.tr <- 1.1
 alpha0_k.tr <- c(0.4, 1.1)
 alpha1_k.tr <- c(0.1, 0.5)
+alphas.tr <- rbind(alpha0_k.tr,alpha1_k.tr)
 xi0.tr <- -1.5
 psi_km1.tr <- c(0.6)
 gammas.tr <- c(-1.8, 0.5)
 eta.tr <- 1  
-theta <- c(betas.tr, delta.tr, rbind(alpha0_k.tr,alpha1_k.tr), 
+theta <- c(betas.tr, delta.tr, alphas.tr,
 xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
-DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL)
+out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL)
+(true_eff <- out$true_eff)
+dat <- out$dat
 }
 \author{
 Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
