@@ -4,11 +4,11 @@ Version: 0.0.0.9000
 Authors@R: 
     c(person(given = "Meilin",
            family = "Jiang",
-           role = c("aut"),
+           role = c("aut", "cre"),
            email = "meilin.jiang@ufl.edu"),
            person(given = "Zhigang",
            family = "Li",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "zhigang.li@ufl.edu")
            )
 Description: A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros. 

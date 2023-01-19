@@ -4,8 +4,8 @@ k_to_ik <- function(para_k, n) {
 }
 
 expit <- function(t) {
-    # out <- exp(t)/(1 + exp(t)) out[t > 100] <- 1/(1 + exp(-t))
-    # return(out)
+    # out <- exp(t)/(1 + exp(t)) out[t > 100] <- 1/(1 +
+    # exp(-t)) return(out)
     1/(1 + exp(-t))
 }
 

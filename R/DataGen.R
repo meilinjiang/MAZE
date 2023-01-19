@@ -11,7 +11,7 @@
 ##' @param x2 the second value of independent variable of interest
 ##' @param zval the value of confounders to be conditional on in estimating effects
 ##' @return  
-##' true_eff: a vector containing true effects  
+##' true_eff: a vector containing true effects     
 ##' dat: a data frame containing variables:
 ##' - X: an independent variable, 
 ##' - Mobs: observed mediator values (with possibly false zeros)
@@ -23,7 +23,7 @@
 ##' @import stats
 ##' @export
 ##' @examples 
-##' betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8)
+##' betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8, 0)
 ##' delta.tr <- 1.1
 ##' alpha0_k.tr <- c(0.4, 1.1)
 ##' alpha1_k.tr <- c(0.1, 0.5)
@@ -43,8 +43,8 @@ DataGen <- function(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL) {
     dat_placeholder <- data.frame(NULL)
     class(dat_placeholder) <- c(distM, class(dat_placeholder))
 
-    out <- DataGen_call(dat_placeholder, theta, K, num_Z, n, B, x1, x2,
-        zval)
+    out <- DataGen_call(dat_placeholder, theta, K, num_Z, n, B, x1,
+        x2, zval)
     return(out)
 }
 

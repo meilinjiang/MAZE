@@ -13,6 +13,7 @@ MAZE(
   M,
   Y,
   Z = NULL,
+  XMint = c(T, F),
   x1,
   x2,
   zval = NULL,
@@ -38,6 +39,8 @@ MAZE(
 
 \item{Z}{name(s) of confounder variables}
 
+\item{XMint}{a logical vector of length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(T,F)}
+
 \item{x1}{the first value of independent variable of interest}
 
 \item{x2}{the second value of independent variable of interest}
@@ -59,6 +62,7 @@ a list containing:
 \item BIC: a numeric value for the BIC of the final mediation model,
 \item AIC: a numeric value for the AIC of the final mediation model,
 \item models: a list with all fitted models
+\item analysis2_out: a list with output from analysis2() function (used for internal check)
 }
 }
 \description{

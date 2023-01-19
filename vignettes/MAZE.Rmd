@@ -38,7 +38,7 @@ Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\b
 \end{align}
 where $Y_{xm1_{(m>0)}}$ is the potential outcome of $Y$ when $(X, M, 1_{(M>0)})$ take the value of $(x,m,1_{(m>0)})$, $1_{(\cdot)}$ is an indicator function.
 Equation (\ref{ymodel}) is an regression model where $\beta_0,\beta_1,\beta_2,\beta_3,\beta_4,\beta_5$ are regression coefficients and $\epsilon$ is the random error following the normal distribution $N(0,\delta^2)$.
-Notice that interactions between $X$ and the two mediators $M$ and $1_{(M>0)}$ can be accommodated by the product terms $\beta_4X1_{(M>0)}$ and $\beta_5XM$ in the model, which is an advantage of potential-outcomes mediation analysis approaches. Users can specify whether to include either one, both, or none of the possible interactions.
+Notice that interactions between $X$ and the two mediators $M$ and $1_{(M>0)}$ can be accommodated by the product terms $\beta_4X1_{(M>0)}$ and $\beta_5XM$ in the model, which is an advantage of potential-outcomes mediation analysis approaches. Users can specify whether to include either one, both, or none of the two possible interactions using the argument `XMint`.
 
 ### 2.1 Zero-inflated mediators
 #### 2.1.1 Zero-inflated log-normal (ZILoN) mediators
@@ -149,7 +149,7 @@ library(MAZE)
 ```
 
 ## 4. Main function `MAZE()`
-To estimate and test CDE, NDE, NIE, NIE$_1$, and NIE$_2$, the R function `MAZE` is used to implement the proposed mediation analysis approach for zero-inflated mediators.
+To estimate and test NIE, NIE$_1$, and NIE$_2$, NDE, and CDE, the R function `MAZE` is used to implement the proposed mediation analysis approach for zero-inflated mediators.
 
 ### 4.1 Input arguments
 
@@ -167,6 +167,8 @@ The input arguments to the function are
 
 - `Z`: name(s) of confounder variables
 
+- `XMint`: a logical vector length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(T,F)
+
 - `x1`: the first value of independent variable of interest
 
 - `x2`: the second value of independent variable of interest
@@ -177,6 +179,8 @@ The input arguments to the function are
 
 - `seed`: an optional seed number to control randomness for reproducibility. The default is 1
 
+- `ncore`: number of cores available for parallel computing
+
 ### 4.2 Outputs
 
 A list object containing
@@ -185,11 +189,15 @@ A list object containing
 
 - `results_parameters`: a data frame for the results of model parameters
 
+- `selected_model_name`: a string for the distribution of M and number of components K selected in the final mediation model
+
 - `BIC`: a numeric value for the BIC of the final mediation model
 
 - `AIC`: a numeric value for the AIC of the final mediation model
 
-- `selected_disM`: a character value for the distribution of M selected in the final mediation model
+- `models`: a list with all fitted models
+
+- `analysis2_out`: a list with output from analysis2() function (used for internal check)
 
 ## 5. Example
 The package contains an example dataset `zip10` that was generated using the proposed model with a zero-inflated Poisson mediator. It is a data frame with 300 observations and 3 variables: a continuous independent variable `X`, a continuous outcome `Y`, and a count mediator variable `Mobs`. The mediator variable contains approximately 7% zero values with about half are false zeros. 
@@ -199,12 +207,15 @@ data(zip10)
 # call MAZE() to perform analysis
 maze_out <- MAZE(data=zip10, 
                  distM=c('zilonm', 'zinbm', 'zipm'), 
+                 K = 1,
+                 selection = "AIC",
                  X='X', M='Mobs', Y='Y', Z=NULL, 
-                 x1=0, x2=1, 
+                 XMint = c(T, F),
+                 x1=0, x2=1, zval = NULL,
                  B=20, seed=1)
 
 ## results of selected mediation model
-maze_out$results_effects # NIE, NIE1, and NIE2
+maze_out$results_effects # NIE1, NIE2, and NIE
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 maze_out$selected_disM # distribution of the mediator in the selected mediation model

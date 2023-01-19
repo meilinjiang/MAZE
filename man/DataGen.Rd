@@ -40,7 +40,7 @@ dat: a data frame containing variables:
 Generate data under zero-inflated mediation models
 }
 \examples{
-betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8)
+betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8, 0)
 delta.tr <- 1.1
 alpha0_k.tr <- c(0.4, 1.1)
 alpha1_k.tr <- c(0.1, 0.5)
