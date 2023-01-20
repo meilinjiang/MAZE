@@ -1,6 +1,6 @@
 Package: MAZE
 Title: Mediation Analysis for ZEro-inflated mediators
-Version: 0.0.0.9000
+Version: 1.0.1
 Authors@R: 
     c(person(given = "Meilin",
            family = "Jiang",
@@ -13,6 +13,7 @@ Authors@R:
            )
 Description: A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros. 
 URL: https://github.com/meilinjiang/MAZE
+BugReports: https://github.com/meilinjiang/MAZE/issues
 License: GPL-2 | GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

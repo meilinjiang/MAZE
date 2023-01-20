@@ -13,7 +13,7 @@ MAZE(
   M,
   Y,
   Z = NULL,
-  XMint = c(T, F),
+  XMint = c(TRUE, FALSE),
   x1,
   x2,
   zval = NULL,
@@ -23,9 +23,9 @@ MAZE(
 )
 }
 \arguments{
-\item{data}{a data frame containing variables: an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zip10)}
+\item{data}{a data frame containing variables: an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zinb10)}
 
-\item{distM}{an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC}
+\item{distM}{an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC}
 
 \item{K}{a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators}
 
@@ -39,7 +39,7 @@ MAZE(
 
 \item{Z}{name(s) of confounder variables}
 
-\item{XMint}{a logical vector of length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(T,F)}
+\item{XMint}{a logical vector of length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(TRUE, FALSE)}
 
 \item{x1}{the first value of independent variable of interest}
 
@@ -75,11 +75,20 @@ For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a cont
 \deqn{Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon}
 }
 \examples{
-data(zip10)
-\dontrun{
-MAZE(data=zip10, distM=c('zilonm', 'zinbm', 'zipm'), K = 1, selection = 'AIC',
-X='X', M='Mobs', Y='Y', Z=NULL, x1=0, x2=1, B=20, seed=1)
-}
+data(zinb10)
+maze_out <- MAZE(data=zinb10, 
+distM=c('zilonm', 'zinbm', 'zipm'), 
+K = 1, 
+selection = 'AIC', 
+X='X', M='Mobs', Y='Y', Z=NULL, 
+XMint = c(TRUE, FALSE), 
+x1=0, x2=1, zval = NULL, 
+B=20, seed=1)
+## results of selected mediation model
+maze_out$results_effects # NIE1, NIE2, and NIE
+maze_out$results_parameters # model parameters
+maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
+maze_out$selected_disM # distribution of the mediator in the selected mediation model
 }
 \author{
 Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}

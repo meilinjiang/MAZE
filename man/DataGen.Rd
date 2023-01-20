@@ -7,7 +7,7 @@
 DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL)
 }
 \arguments{
-\item{distM}{an character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.}
+\item{distM}{an character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.}
 
 \item{theta}{vector of true parameter values}
 
@@ -37,7 +37,7 @@ dat: a data frame containing variables:
 }
 }
 \description{
-Generate data under zero-inflated mediation models
+Generate data under zero-inflated mediation models and calculate the true effects
 }
 \examples{
 betas.tr <- c(2, 0.12, -6.6, 6.3, -3.8, 0)

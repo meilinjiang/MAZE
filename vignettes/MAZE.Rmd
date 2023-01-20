@@ -1,11 +1,12 @@
 ---
 title: "MAZE: Mediation Analysis for ZEro-inflated mediators"
 author:
-- Zhigang Li
-- Meilin Jiang
+- Meilin Jiang^[University of Florida, meilin.jiang@ufl.edu]
+- Zhigang Li^[University of Florida, zhigang.li@ufl.edu]
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: rmarkdown::html_vignette
-  # pdf_document: default
+output: 
+  # rmarkdown::html_vignette
+  pdf_document: default
   # html_document:
   #   df_print: paged
 vignette: >
@@ -145,7 +146,6 @@ The R package `MAZE` can be installed from the Github webpage.
 ```{r,eval=F}
 require(devtools)
 devtools::install_github("https://github.com/meilinjiang/MAZE", build_vignettes = TRUE)
-library(MAZE)
 ```
 
 ## 4. Main function `MAZE()`
@@ -157,7 +157,11 @@ The input arguments to the function are
 
 - `data`: a data frame containing variables X, M, Y, and Z (if any)
 
-- `distM`: an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC
+- `distM`: an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC
+
+- `K`: a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators
+
+- `selection`: model selection criterion to be used when more than one model is fitted. Possible choices are 'AIC' and 'BIC'. Default is 'AIC'
 
 - `X`: variable name of the independent variable
 
@@ -167,7 +171,7 @@ The input arguments to the function are
 
 - `Z`: name(s) of confounder variables
 
-- `XMint`: a logical vector length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(T,F)
+- `XMint`: a logical vector length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is `c(TRUE, FALSE)`
 
 - `x1`: the first value of independent variable of interest
 
@@ -200,17 +204,18 @@ A list object containing
 - `analysis2_out`: a list with output from analysis2() function (used for internal check)
 
 ## 5. Example
-The package contains an example dataset `zip10` that was generated using the proposed model with a zero-inflated Poisson mediator. It is a data frame with 300 observations and 3 variables: a continuous independent variable `X`, a continuous outcome `Y`, and a count mediator variable `Mobs`. The mediator variable contains approximately 7% zero values with about half are false zeros. 
+The `MAZE` package contains an example dataset `zinb10` that was generated using the proposed model with a zero-inflated negative binomial mediator ($K=1$). It is a data frame with 100 observations and 3 variables: a continuous independent variable `X`, a continuous outcome `Y`, and a count mediator variable `Mobs`. The mediator variable contains 10% zero values in which half are false zeros. 
 ```{r,eval=F}
-# load the example dataset "zip10"
-data(zip10)
-# call MAZE() to perform analysis
-maze_out <- MAZE(data=zip10, 
+library(MAZE)
+# load the example dataset "zinb10"
+data(zinb10)
+# call MAZE() to perform mediation analysis
+maze_out <- MAZE(data=zinb10, 
                  distM=c('zilonm', 'zinbm', 'zipm'), 
                  K = 1,
                  selection = "AIC",
                  X='X', M='Mobs', Y='Y', Z=NULL, 
-                 XMint = c(T, F),
+                 XMint = c(TRUE, FALSE),
                  x1=0, x2=1, zval = NULL,
                  B=20, seed=1)
 

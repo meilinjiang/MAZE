@@ -1,7 +1,7 @@
-##' Generate data under zero-inflated mediation models
+##' Generate data under zero-inflated mediation models and calculate the true effects
 ##' 
 ##' @title DataGen 
-##' @param distM an character value for distribution to be used for the mediator. Possible choices are 'zilonm','zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.
+##' @param distM an character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.
 ##' @param theta vector of true parameter values
 ##' @param K a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators
 ##' @param num_Z number of confounder variables
