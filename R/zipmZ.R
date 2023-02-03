@@ -12,11 +12,14 @@ trans.zipm <- function(dat, theta, K, xval, num_Z, zval) {
     if (K == 1) {
         psi_k <- 1
     } else {
-        psi_k <- c(theta[7 + num_Z + (2 + num_Z) * K + 1:(K - 1)], 1 -
-            sum(theta[7 + num_Z + (2 + num_Z) * K + 1:(K - 1)]))
+        psi_k <- c(theta[7 + num_Z + (2 + num_Z) * K + 1:(K -
+            1)], 1 - sum(theta[7 + num_Z + (2 + num_Z) * K + 1:(K -
+            1)]))
     }
-    gammas <- theta[7 + num_Z + (2 + num_Z) * K + (K - 1) + 1:(2 + num_Z)]
-    eta <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) + (2 + num_Z)]
+    gammas <- theta[7 + num_Z + (2 + num_Z) * K + (K - 1) + 1:(2 +
+        num_Z)]
+    eta <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) + (2 +
+        num_Z)]
 
     n0 <- length(xval)
     psi_ik <- k_to_ik(psi_k, n0)
@@ -31,19 +34,20 @@ trans.zipm <- function(dat, theta, K, xval, num_Z, zval) {
         beta_T_Z <- rowSums(k_to_ik(beta_Z, n0) * zval)
     }
     designMat_M <- cbind(1, xval, zval)
-    loglambda_ik <- matrix(apply(matrix(alpha_k, ncol = K), 2, function(t) rowSums(k_to_ik(t,
-        n0) * designMat_M)), ncol = K)
+    loglambda_ik <- matrix(apply(matrix(alpha_k, ncol = K), 2,
+        function(t) rowSums(k_to_ik(t, n0) * designMat_M)), ncol = K)
     lambda_ik <- exp(loglambda_ik)
 
     Delstar_i <- expit(rowSums(k_to_ik(gammas, n0) * designMat_M))
     Del_i <- Delstar_i + (1 - Delstar_i) * rowSums(psi_ik * exp(-lambda_ik))
-    # neg_log_em1 = -log[exp(lambda) - 1], when lambda too small,
-    # log(0) causes issues Taylor expansion: when lambda -> 0
-    # exp(lambda) = 1 + lambda + lambda^2/2 + lambda^3/6 + ...
-    # when lambda is small (< 1e-10), take the first term:
-    # exp(lambda) = 1 + lambda, so neg_log_em1 = -log(lambda) when
-    # lambda is big: exp(lambda) - 1 = exp(lambda)[1 -
-    # exp(-lambda)] more stable
+    # neg_log_em1 = -log[exp(lambda) - 1], when lambda too
+    # small, log(0) causes issues Taylor expansion: when
+    # lambda -> 0 exp(lambda) = 1 + lambda + lambda^2/2 +
+    # lambda^3/6 + ...  when lambda is small (< 1e-10), take
+    # the first term: exp(lambda) = 1 + lambda, so
+    # neg_log_em1 = -log(lambda) when lambda is big:
+    # exp(lambda) - 1 = exp(lambda)[1 - exp(-lambda)] more
+    # stable
     neg_log_em1 <- -loglambda_ik
     neg_log_em1[lambda_ik > 1e-10] <- (-lambda_ik - log(1 - exp(-lambda_ik)))[lambda_ik >
         1e-10]
@@ -51,8 +55,8 @@ trans.zipm <- function(dat, theta, K, xval, num_Z, zval) {
     theta_trans <- list(beta0 = beta0, beta1 = beta1, beta2 = beta2,
         beta3 = beta3, beta4 = beta4, beta5 = beta5, delta = delta,
         eta = eta, beta_T_Z = beta_T_Z, alpha_k = alpha_k, loglambda_ik = loglambda_ik,
-        lambda_ik = lambda_ik, psi_k = psi_k, psi_ik = psi_ik, Delstar_i = Delstar_i,
-        Del_i = Del_i, neg_log_em1 = neg_log_em1)
+        lambda_ik = lambda_ik, psi_k = psi_k, psi_ik = psi_ik,
+        Delstar_i = Delstar_i, Del_i = Del_i, neg_log_em1 = neg_log_em1)
     return(theta_trans)
 }
 
@@ -61,7 +65,8 @@ ComputeInit.zipm <- function(dat, K, num_Z, Z_names, XMint) {
     dat_g1 <- dat[which(dat$Mobs > 0), ]
 
     # fit <- summary(lm(Y_group1 ~ M_group1 + X_group1))
-    fm_Y_rhs <- c("Mobs", "X", if (XMint[2]) "Mobs:X" else NULL, Z_names)
+    fm_Y_rhs <- c("Mobs", "X", if (XMint[2]) "Mobs:X" else NULL,
+        Z_names)
     fm_Y <- as.formula(paste0("Y~", paste0(fm_Y_rhs, collapse = "+"),
         collapse = ""))
     fit <- summary(lm(fm_Y, data = dat_g1))
@@ -70,18 +75,20 @@ ComputeInit.zipm <- function(dat, K, num_Z, Z_names, XMint) {
     betas <- fit$coefficients[c("(Intercept)", fm_Y_rhs), "Estimate"]
     delta <- fit$sigma
     # poisson reg has loglink so no need to log(Mobs)
-    fm_M <- as.formula(paste0("Mobs~", paste0(c("X", Z_names), collapse = "+"),
-        collapse = ""))
+    fm_M <- as.formula(paste0("Mobs~", paste0(c("X", Z_names),
+        collapse = "+"), collapse = ""))
     cl <- flexmix(fm_M, k = K, data = dat_g1, model = FLXMRglm(family = "poisson"))
     cl_size <- table(clusters(cl))
     while (length(cl_size) != K) {
         cl <- flexmix(fm_M, k = K, data = dat_g1, model = FLXMRglm(family = "poisson"))
         cl_size <- table(clusters(cl))
     }
-    # method 3: distribution 1 as the one with smaller cluster
-    # mean since x=age, intercepts are not accurate enough
+    # method 3: distribution 1 as the one with smaller
+    # cluster mean since x=age, intercepts are not accurate
+    # enough
     mu <- tapply(dat_g1$Mobs, clusters(cl), mean)
-    # mu <- parameters(cl)[1,]+parameters(cl)[2,]*mean(X_group1)
+    # mu <-
+    # parameters(cl)[1,]+parameters(cl)[2,]*mean(X_group1)
     ord <- order(mu)
     mix <- parameters(cl)[, ord, drop = F]
     # alpha_0k, alpha_1k, xi_0, psik
@@ -93,12 +100,13 @@ ComputeInit.zipm <- function(dat, K, num_Z, Z_names, XMint) {
     return(init)
 }
 
-# negative expectation of log-likelihood function with respect to
-# conditional distribution of 1(Ci = k) given data and current
-# estimates for group 1: -Q1
-negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL, tauG1 = NULL,
-    calculate_tau = F, calculate_ll = F) {
-    # betas, delta, alpha0k, alpha1k, alphaZ_k, w0k, gammas, eta
+# negative expectation of log-likelihood function with
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 1: -Q1
+negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL,
+    tauG1 = NULL, calculate_tau = F, calculate_ll = F) {
+    # betas, delta, alpha0k, alpha1k, alphaZ_k, w0k, gammas,
+    # eta
     dat_g1 <- dat[which(dat$Mobs > 0), ]
     M_group1 <- dat_g1$Mobs
     Y_group1 <- dat_g1$Y
@@ -109,7 +117,8 @@ negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL, tauG1 = NULL,
         Z_group1 <- dat_g1[, Z_names]
     }
     theta_trans <- trans(dat, theta, K, X_group1, num_Z, Z_group1)
-    log_dpois_nz <- M_group1 * theta_trans[["loglambda_ik"]] + theta_trans[["neg_log_em1"]]
+    log_dpois_nz <- M_group1 * theta_trans[["loglambda_ik"]] +
+        theta_trans[["neg_log_em1"]]
 
     # group 1
     if (!calculate_tau) {
@@ -121,10 +130,11 @@ negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL, tauG1 = NULL,
         }
         pf0[M_group1 > B] <- 0
 
-        l1_ik <- -log(theta_trans[["delta"]]) + log(1 - pf0) - 0.5 *
-            log(2 * pi) + log_dpois_nz - sapply(M_group1, function(t) {
-            sum(log(1:t))
-        }) - (Y_group1 - theta_trans[["beta0"]] - theta_trans[["beta1"]] *
+        l1_ik <- -log(theta_trans[["delta"]]) + log(1 - pf0) -
+            0.5 * log(2 * pi) + log_dpois_nz - sapply(M_group1,
+            function(t) {
+                sum(log(1:t))
+            }) - (Y_group1 - theta_trans[["beta0"]] - theta_trans[["beta1"]] *
             M_group1 - theta_trans[["beta2"]] - (theta_trans[["beta3"]] +
             theta_trans[["beta4"]]) * X_group1 - theta_trans[["beta5"]] *
             X_group1 * M_group1 - theta_trans[["beta_T_Z"]])^2/(2 *
@@ -137,22 +147,24 @@ negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL, tauG1 = NULL,
             Q1_ik <- tauG1 * pow
             out <- -sum(Q1_ik)
         } else {
-            # calculate -l1 alternative method for calculating
-            # hessian: from log likelihood function parameter
-            # estimation cannot use it (has many saddle points so
-            # need EM), but hessian can l1_i <- log(
-            # bigpsi1*exp(l1_ik1) + bigpsi2*exp(l1_ik2) )
+            # calculate -l1 alternative method for
+            # calculating hessian: from log likelihood
+            # function parameter estimation cannot use it
+            # (has many saddle points so need EM), but
+            # hessian can l1_i <- log( bigpsi1*exp(l1_ik1) +
+            # bigpsi2*exp(l1_ik2) )
             pow_max <- apply(pow, 1, max)
             l1_i <- log(rowSums(exp(pow - pow_max))) + pow_max
             out <- -sum(l1_i)
         }
     } else {
-        # calculate conditional expectation of 1(Ci = k) given
-        # data and current estimates
+        # calculate conditional expectation of 1(Ci = k)
+        # given data and current estimates
         if (K == 1) {
             out <- matrix(1, nrow = length(M_group1), ncol = 1)
         } else {
-            # num <- theta_trans[['psi_ik']]*exp(log_dpois_nz) out
+            # num <-
+            # theta_trans[['psi_ik']]*exp(log_dpois_nz) out
             # <- num/rowSums(num)
             pow <- log(theta_trans[["psi_ik"]]) + log_dpois_nz
             out <- NULL
@@ -174,37 +186,41 @@ bounds.zipm <- function(dat, K, group, num_Z, XMint) {
             ui <- diag(rep(1, s + 2 + num_Z + 1))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z))
         } else {
-            ui <- diag(rep(1, s + 2 + num_Z + 1 + 2 + num_Z + 1))
-            ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z + 2 +
-                num_Z), 1e-06)
+            ui <- diag(rep(1, s + 2 + num_Z + 1 + 2 + num_Z +
+                1))
+            ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z +
+                2 + num_Z), 1e-06)
         }
     } else {
         if (group == 1) {
-            ui1 <- diag(rep(1, s + 1 + (2 + num_Z) * K + (K - 1)))
-            ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1, K -
+            ui1 <- diag(rep(1, s + 1 + (2 + num_Z) * K + (K -
                 1)))
-            ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K - 1),
-                ], c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1, K - 1)))
-            ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) * K),
-                rep(1e-06, K - 1), rep(-(1 - 1e-06), K - 1), -(1 - 1e-06))
+            ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
+                K - 1)))
+            ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K -
+                1), ], c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
+                K - 1)))
+            ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) *
+                K), rep(1e-06, K - 1), rep(-(1 - 1e-06), K - 1),
+                -(1 - 1e-06))
         } else {
-            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K - 1) + 2 +
-                num_Z))
-            ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1, K -
-                1), rep(0, (2 + num_Z) + 1)))
-            ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K - 1),
-                ], c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1, K - 1),
-                rep(0, (2 + num_Z) + 1)))
-            ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) * K),
-                rep(1e-06, K - 1), rep(-1000, 2 + num_Z), 1e-06, rep(-(1 -
-                  1e-06), K - 1), -(1 - 1e-06))
+            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K -
+                1) + 2 + num_Z))
+            ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
+                K - 1), rep(0, (2 + num_Z) + 1)))
+            ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K -
+                1), ], c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
+                K - 1), rep(0, (2 + num_Z) + 1)))
+            ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) *
+                K), rep(1e-06, K - 1), rep(-1000, 2 + num_Z),
+                1e-06, rep(-(1 - 1e-06), K - 1), -(1 - 1e-06))
         }
     }
     return(list(ui = ui, ci = ci))
 }
 
-ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B, limits,
-    explicit = T) {
+ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B,
+    limits, explicit = T) {
     init2 <- ComputeInit(dat, K, num_Z, Z_names, XMint)
     tau2 <- negQ2_G1(dat, init2, K, num_Z, Z_names, XMint, calculate_tau = T)
     init <- rep(0, length(init2))
@@ -219,9 +235,9 @@ ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B, limits,
         # m <-
         # nlminb(init,function(x)negQ2_G1(dat,x,K,num_Z,Z_names,
         # XMint,B,tau),lower = c(rep(-1000,9),1e-6))
-        m <- constrOptim(init, function(x) negQ2_G1(dat, x, K, num_Z,
-            Z_names, XMint, B, tau), grad = NULL, ui = bd$ui, ci = bd$ci,
-            outer.iterations = 500, control = list(maxit = 50000))
+        m <- constrOptim(init, function(x) negQ2_G1(dat, x, K,
+            num_Z, Z_names, XMint, B, tau), grad = NULL, ui = bd$ui,
+            ci = bd$ci, outer.iterations = 500, control = list(maxit = 50000))
         if (m$convergence != 0) {
             print(paste0("ComputeInit2=", m$convergence))
             init2 <- NA
@@ -229,8 +245,8 @@ ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B, limits,
         } else {
             init2 <- m$par
         }
-        switch <- compare_mu(dat, init2, group = 1, K, num_Z, Z_names,
-            XMint)
+        switch <- compare_mu(dat, init2, group = 1, K, num_Z,
+            Z_names, XMint)
         init2 <- switch$init2
         tau2 <- switch$tau2
         countEM <- countEM + 1
@@ -238,23 +254,24 @@ ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B, limits,
             break
         }
     }
-    # beta02, beta1, beta34, (beta5), beta_Z, delta, alpha_0k,
-    # alpha_1k, w_0k
-    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint, initials_for_full = T)
+    # beta02, beta1, beta34, (beta5), beta_Z, delta,
+    # alpha_0k, alpha_1k, w_0k
+    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint,
+        initials_for_full = T)
     return(initials)
 }
 
 # log(factorial(m)) = sum(log(m)) more stable using log
-loghik_zipm <- function(m, loglambda, beta0, beta1, beta2, beta3, beta4,
-    beta5, beta_T_Z, delta, eta, x, y) {
-    m * loglambda - ((y - beta0 - (beta1 * m) - beta2 - (beta3 + beta4) *
-        x - beta5 * x * m - beta_T_Z)^2)/(2 * delta^2) - eta^2 * m -
-        sum(log(1:m))
+loghik_zipm <- function(m, loglambda, beta0, beta1, beta2, beta3,
+    beta4, beta5, beta_T_Z, delta, eta, x, y) {
+    m * loglambda - ((y - beta0 - (beta1 * m) - beta2 - (beta3 +
+        beta4) * x - beta5 * x * m - beta_T_Z)^2)/(2 * delta^2) -
+        eta^2 * m - sum(log(1:m))
 }
 
-# negative expectation of log-likelihood function with respect to
-# conditional distribution of 1(Ci = k) given data and current
-# estimates for group 2: -Q2
+# negative expectation of log-likelihood function with
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 2: -Q2
 negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
     calculate_tau = F, calculate_ll = F) {
     # group 2
@@ -273,21 +290,22 @@ negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
         loghik_m[[i]] <- loghik_zipm(m = i, loglambda = theta_trans[["loglambda_ik"]],
             theta_trans[["beta0"]], theta_trans[["beta1"]], theta_trans[["beta2"]],
             theta_trans[["beta3"]], theta_trans[["beta4"]], theta_trans[["beta5"]],
-            theta_trans[["beta_T_Z"]], theta_trans[["delta"]], theta_trans[["eta"]],
-            x = X_group2, y = Y_group2)
+            theta_trans[["beta_T_Z"]], theta_trans[["delta"]],
+            theta_trans[["eta"]], x = X_group2, y = Y_group2)
     }
     loghik_mmax <- NULL
     for (k in seq_len(K)) {
-        loghik_mmax <- cbind(loghik_mmax, apply(sapply(loghik_m, function(t) t[,
-            k]), 1, max))
+        loghik_mmax <- cbind(loghik_mmax, apply(sapply(loghik_m,
+            function(t) t[, k]), 1, max))
     }
-    output <- log(Reduce("+", lapply(loghik_m, function(t) exp(t - loghik_mmax)))) +
-        loghik_mmax
+    output <- log(Reduce("+", lapply(loghik_m, function(t) exp(t -
+        loghik_mmax)))) + loghik_mmax
 
     # l2_ik <- cbind(-log(theta_trans[['delta']]) -
     # (Y_group2-theta_trans[['beta0']]-theta_trans[['beta3']]*X_group2-theta_trans[['beta_T_Z']])^2/(2*theta_trans[['delta']]^2)
     # - 0.5*log(2*pi), -log(theta_trans[['delta']]) -
-    # 0.5*log(2*pi) + theta_trans[['neg_log_em1']] + output )
+    # 0.5*log(2*pi) + theta_trans[['neg_log_em1']] + output
+    # )
     l2_ik <- cbind(-(Y_group2 - theta_trans[["beta0"]] - theta_trans[["beta3"]] *
         X_group2 - theta_trans[["beta_T_Z"]])^2/(2 * theta_trans[["delta"]]^2),
         theta_trans[["neg_log_em1"]] + output) - log(theta_trans[["delta"]]) -
@@ -303,19 +321,19 @@ negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
             Q2_ik <- tauG2 * pow
             out <- -sum(Q2_ik)
         } else {
-            # calculate -l2 alternative method for calculating
-            # hessian: from log likelihood function parameter
-            # estimation cannot use it (has many saddle points so
-            # need EM), but hessian can l2_i <- log(
-            # bigpsi0*exp(l2_ik0) + bigpsi1*exp(l2_ik1) +
-            # bigpsi2*exp(l2_ik2) )
+            # calculate -l2 alternative method for
+            # calculating hessian: from log likelihood
+            # function parameter estimation cannot use it
+            # (has many saddle points so need EM), but
+            # hessian can l2_i <- log( bigpsi0*exp(l2_ik0) +
+            # bigpsi1*exp(l2_ik1) + bigpsi2*exp(l2_ik2) )
             pow_max <- apply(pow, 1, max)
             l2_i <- log(rowSums(exp(pow - pow_max))) + pow_max
             out <- -sum(l2_i)
         }
     } else {
-        # calculate conditional expectation of 1(Ci = k) given
-        # data and current estiamtes
+        # calculate conditional expectation of 1(Ci = k)
+        # given data and current estiamtes
         ll <- exp(pow)
         out <- ll/rowSums(ll)
     }
@@ -342,10 +360,10 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
     Delstar_x12 <- theta_trans[["Delstar_i"]]
     m_x12 <- rowSums(theta_trans[["psi_ik"]] * theta_trans[["lambda_ik"]])
 
-    NIE1 <- (theta_trans[["beta1"]] + theta_trans[["beta5"]] * x2) *
-        diff((1 - Delstar_x12) * m_x12)
-    NIE2 <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] * x2) *
-        (-diff(Del_x12))
+    NIE1 <- (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
+        x2) * diff((1 - Delstar_x12) * m_x12)
+    NIE2 <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] *
+        x2) * (-diff(Del_x12))
     NIE <- NIE1 + NIE2
     # NDE <- (x2 - x1)*(beta3 + beta4*(1 - Del_x1))
     out <- data.frame(eff = c(NIE1, NIE2, NIE))
@@ -353,39 +371,44 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
     if (calculate_se == T) {
         # asymptotic variance by delta method
         desginMat <- cbind(1, x12, z12)
-        g_NIE1_alpha_k <- g_NIE2_alpha_k <- matrix(NA, 2 + num_Z, K)
+        g_NIE1_alpha_k <- g_NIE2_alpha_k <- matrix(NA, 2 + num_Z,
+            K)
         g_NIE1_gammas <- g_NIE2_gammas <- rep(NA, 2 + num_Z)
         for (var in seq_len(2 + num_Z)) {
-            g_NIE1_alpha_k[var, ] <- (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
-                x2) * theta_trans[["psi_k"]] * diff((1 - Delstar_x12) *
-                theta_trans[["lambda_ik"]] * desginMat[, var])
+            g_NIE1_alpha_k[var, ] <- (theta_trans[["beta1"]] +
+                theta_trans[["beta5"]] * x2) * theta_trans[["psi_k"]] *
+                diff((1 - Delstar_x12) * theta_trans[["lambda_ik"]] *
+                  desginMat[, var])
             g_NIE1_gammas[var] <- (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
                 x2) * (-1) * diff(Delstar_x12 * (1 - Delstar_x12) *
                 m_x12 * desginMat[, var])
 
-            g_NIE2_alpha_k[var, ] <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] *
-                x2) * theta_trans[["psi_k"]] * diff((1 - Delstar_x12) *
-                exp(-theta_trans[["lambda_ik"]]) * theta_trans[["lambda_ik"]] *
-                desginMat[, var])
+            g_NIE2_alpha_k[var, ] <- (theta_trans[["beta2"]] +
+                theta_trans[["beta4"]] * x2) * theta_trans[["psi_k"]] *
+                diff((1 - Delstar_x12) * exp(-theta_trans[["lambda_ik"]]) *
+                  theta_trans[["lambda_ik"]] * desginMat[, var])
             g_NIE2_gammas[var] <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] *
-                x2) * (-1) * diff(Delstar_x12 * (1 - Del_x12) * desginMat[,
-                var])
+                x2) * (-1) * diff(Delstar_x12 * (1 - Del_x12) *
+                desginMat[, var])
         }
-        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1, gammas
-        g_NIE1 <- c(0, diff((1 - Delstar_x12) * m_x12), rep(0, 2 + XMint[1]),
-            if (XMint[2]) x2 * diff((1 - Delstar_x12) * m_x12) else NULL,
-            rep(0, num_Z + 1), g_NIE1_alpha_k, if (K == 1) NULL else (theta_trans[["beta1"]] +
-                theta_trans[["beta5"]] * x2) * diff((theta_trans[["lambda_ik"]][,
-                1:(K - 1)] - theta_trans[["lambda_ik"]][, K]) * (1 -
+        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1,
+        # gammas
+        g_NIE1 <- c(0, diff((1 - Delstar_x12) * m_x12), rep(0,
+            2 + XMint[1]), if (XMint[2]) x2 * diff((1 - Delstar_x12) *
+            m_x12) else NULL, rep(0, num_Z + 1), g_NIE1_alpha_k,
+            if (K == 1) NULL else (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
+                x2) * diff((theta_trans[["lambda_ik"]][, 1:(K -
+                1)] - theta_trans[["lambda_ik"]][, K]) * (1 -
                 Delstar_x12)), g_NIE1_gammas, 0)
 
-        # beta2, (beta4), alpha0_k, alpha1_k, psi_k-1, gammas
+        # beta2, (beta4), alpha0_k, alpha1_k, psi_k-1,
+        # gammas
         g_NIE2 <- c(rep(0, 2), -diff(Del_x12), 0, if (XMint[1]) x2 *
-            (-diff(Del_x12)) else NULL, rep(0, XMint[2] + num_Z + 1),
-            g_NIE2_alpha_k, if (K == 1) NULL else (theta_trans[["beta2"]] +
-                theta_trans[["beta4"]] * x2) * (-1) * diff((1 - Delstar_x12) *
-                (exp(-theta_trans[["lambda_ik"]])[, 1:(K - 1)] - exp(-theta_trans[["lambda_ik"]])[,
-                  K])), g_NIE2_gammas, 0)
+            (-diff(Del_x12)) else NULL, rep(0, XMint[2] + num_Z +
+            1), g_NIE2_alpha_k, if (K == 1) NULL else (theta_trans[["beta2"]] +
+            theta_trans[["beta4"]] * x2) * (-1) * diff((1 - Delstar_x12) *
+            (exp(-theta_trans[["lambda_ik"]])[, 1:(K - 1)] - exp(-theta_trans[["lambda_ik"]])[,
+                K])), g_NIE2_gammas, 0)
 
         g_NIE <- g_NIE1 + g_NIE2
 

@@ -1,12 +1,10 @@
-##' Mediation Analysis for ZEro-inflated mediators
+##' @title Mediation Analysis for ZEro-inflated mediators
 ##'
-##' A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros.
+##' @description A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros.
 ##'
-##' For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between \eqn{Y} and \eqn{(X,M)}:
+##' @details For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between \eqn{Y} and \eqn{(X,M)}:
 ##' \deqn{Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon}
 ##'
-##'
-##' @title Mediation Analysis for ZEro-inflated mediators
 ##' @param data a data frame containing variables: an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zinb10)
 ##' @param distM an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC
 ##' @param K a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators
@@ -32,13 +30,14 @@
 ##' - analysis2_out: a list with output from analysis2() function (used for internal check)
 ##' @author Zhigang Li <zhigang.li@@ufl.edu>
 ##' Meilin Jiang <meilin.jiang@@ufl.edu>
-##' @import stats numDeriv foreach doParallel
+##' @import stats foreach doParallel MASS
 ##' @importFrom flexmix flexmix clusters parameters FLXMRglm
 ##' @importFrom pracma hessian
-##' @importFrom MASS glm.nb
+##' @importFrom numDeriv grad jacobian
 ##' @export
 ##' @examples
 ##' data(zinb10)
+##' \donttest{
 ##' maze_out <- MAZE(data=zinb10,
 ##' distM=c('zilonm', 'zinbm', 'zipm'),
 ##' K = 1,
@@ -52,18 +51,19 @@
 ##' maze_out$results_parameters # model parameters
 ##' maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 ##' maze_out$selected_disM # distribution of the mediator in the selected mediation model
-
+##' }
 
 MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
-    selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE, FALSE), x1,
-    x2, zval = NULL, B = 20, seed = 1, ncore = 1) {
+    selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE, FALSE),
+    x1, x2, zval = NULL, B = 20, seed = 1, ncore = 1) {
     distM_sequence <- distM
     K_sequence <- K
-    limits = 0.001
+    limits <- 0.001
     # set.seed(seed)
 
     data <- as.data.frame(data)
-    dat <- data.frame(X = data[, X], Y = data[, Y], Mobs = data[, M])
+    dat <- data.frame(X = data[, X], Y = data[, Y], Mobs = data[,
+        M])
     num_Z <- length(Z)
     if (is.null(Z)) {
         Z_names <- NULL
@@ -76,12 +76,13 @@ MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
     dat <- dat[complete.cases(dat), ]
 
     out <- tryCatch({
-        realanalysis(dat, distM_sequence, K_sequence, selection, XMint,
-            x1, x2, zval, num_Z, Z_names, limits, B, seed, ncore)
+        realanalysis(dat, distM_sequence, K_sequence, selection,
+            XMint, x1, x2, zval, num_Z, Z_names, limits, B, seed,
+            ncore)
     }, error = function(e) {
         print(e)
-        # list(results_effects = NA, results_parameters = NA, BIC
-        # = Inf, AIC = Inf, e = e)
+        # list(results_effects = NA, results_parameters =
+        # NA, BIC = Inf, AIC = Inf, e = e)
     })
     return(out)
 }

@@ -48,7 +48,7 @@ alphas.tr <- rbind(alpha0_k.tr,alpha1_k.tr)
 xi0.tr <- -1.5
 psi_km1.tr <- c(0.6)
 gammas.tr <- c(-1.8, 0.5)
-eta.tr <- 1  
+eta.tr <- 1
 theta <- c(betas.tr, delta.tr, alphas.tr,
 xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
 out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL)

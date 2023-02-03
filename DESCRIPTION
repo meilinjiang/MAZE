@@ -1,17 +1,17 @@
 Package: MAZE
-Title: Mediation Analysis for ZEro-inflated mediators
-Version: 1.0.1
-Authors@R: 
-    c(person(given = "Meilin",
+Title: Mediation Analysis for Zero-Inflated Mediators
+Version: 0.0.1
+Authors@R: c(
+    person(given = "Meilin",
            family = "Jiang",
            role = c("aut", "cre"),
            email = "meilin.jiang@ufl.edu"),
-           person(given = "Zhigang",
+    person(given = "Zhigang",
            family = "Li",
            role = c("aut"),
            email = "zhigang.li@ufl.edu")
            )
-Description: A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros. 
+Description: The MAZE R package offers a novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros. 
 URL: https://github.com/meilinjiang/MAZE
 BugReports: https://github.com/meilinjiang/MAZE/issues
 License: GPL-2 | GPL-3
@@ -19,7 +19,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 Depends: 
-    R (>= 4.0), flexmix, pracma, MASS
+    R (>= 4.0), flexmix, numDeriv, pracma
 LazyData: true
 Suggests: 
     knitr,
@@ -28,4 +28,4 @@ VignetteBuilder: knitr
 LinkingTo: 
     Rcpp
 Imports: 
-    Rcpp, numDeriv, stats, foreach, doParallel
+    Rcpp, stats, foreach, doParallel, MASS

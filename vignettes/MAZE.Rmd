@@ -3,10 +3,11 @@ title: "MAZE: Mediation Analysis for ZEro-inflated mediators"
 author:
 - Meilin Jiang^[University of Florida, meilin.jiang@ufl.edu]
 - Zhigang Li^[University of Florida, zhigang.li@ufl.edu]
-date: "`r format(Sys.time(), '%d %B %Y')`"
+# date: "`r format(Sys.time(), '%d %B %Y')`"
+date: "January 30, 2023"
 output: 
-  # rmarkdown::html_vignette
-  pdf_document: default
+  rmarkdown::html_vignette
+  # pdf_document: default
   # html_document:
   #   df_print: paged
 vignette: >
@@ -205,7 +206,7 @@ A list object containing
 
 ## 5. Example
 The `MAZE` package contains an example dataset `zinb10` that was generated using the proposed model with a zero-inflated negative binomial mediator ($K=1$). It is a data frame with 100 observations and 3 variables: a continuous independent variable `X`, a continuous outcome `Y`, and a count mediator variable `Mobs`. The mediator variable contains 10% zero values in which half are false zeros. 
-```{r,eval=F}
+```{r,eval=T}
 library(MAZE)
 # load the example dataset "zinb10"
 data(zinb10)

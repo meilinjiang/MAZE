@@ -29,7 +29,7 @@ MAZE(
 
 \item{K}{a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators}
 
-\item{selection}{model selection criterion to be used when more than one model is fitted. Possible choices are 'AIC' and 'BIC'. Default is 'AIC'.}
+\item{selection}{model selection criterion to be used when more than one model is fitted. Possible choices are 'AIC' and 'BIC'. Default is 'AIC'}
 
 \item{X}{name of the independent variable}
 
@@ -66,29 +66,29 @@ a list containing:
 }
 }
 \description{
-Mediation Analysis for ZEro-inflated mediators
+A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros.
 }
 \details{
-A novel mediation modeling approach to address zero-inflated mediators containing true zeros and false zeros.
-
 For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between \eqn{Y} and \eqn{(X,M)}:
 \deqn{Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon}
 }
 \examples{
 data(zinb10)
-maze_out <- MAZE(data=zinb10, 
-distM=c('zilonm', 'zinbm', 'zipm'), 
-K = 1, 
-selection = 'AIC', 
-X='X', M='Mobs', Y='Y', Z=NULL, 
-XMint = c(TRUE, FALSE), 
-x1=0, x2=1, zval = NULL, 
+\donttest{
+maze_out <- MAZE(data=zinb10,
+distM=c('zilonm', 'zinbm', 'zipm'),
+K = 1,
+selection = 'AIC',
+X='X', M='Mobs', Y='Y', Z=NULL,
+XMint = c(TRUE, FALSE),
+x1=0, x2=1, zval = NULL,
 B=20, seed=1)
 ## results of selected mediation model
 maze_out$results_effects # NIE1, NIE2, and NIE
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 maze_out$selected_disM # distribution of the mediator in the selected mediation model
+}
 }
 \author{
 Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
