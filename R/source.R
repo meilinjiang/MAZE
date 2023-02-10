@@ -22,8 +22,8 @@ ComputeInit <- function(dat, K, ...) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given
-# data and current estimates for group 1: -Q1
+# respect to conditional distribution of 1(Ci = k) given data
+# and current estimates for group 1: -Q1
 negQ_G1 <- function(dat, theta, K, ...) {
     UseMethod("negQ_G1")
 }
@@ -42,12 +42,12 @@ G1_init <- function(dat, init, K, num_Z, Z_names, XMint, initials_for_full = F) 
         initials <- c(init[1:2], 0, init[3], rep(0, ifelse(XMint[2],
             1, 2)), init[4:length(init)], gammas, 0.01)
     }
-    # zilonm, with beta5 initials <- c(init[1:2], 0,
-    # init[3], 0, init[4], init[4 + 1:(num_Z + (2 + num_Z) *
-    # K + 2 + K - 1)], gammas, 0.01)
+    # zilonm, with beta5 initials <- c(init[1:2], 0, init[3],
+    # 0, init[4], init[4 + 1:(num_Z + (2 + num_Z) * K + 2 + K
+    # - 1)], gammas, 0.01)
 
-    # zinbm, no beta5 initials <- c(init[1:2], 0, init[3],
-    # 0, init[3 + 1:(num_Z + (2 + num_Z) * K + 2 + K - 1)],
+    # zinbm, no beta5 initials <- c(init[1:2], 0, init[3], 0,
+    # init[3 + 1:(num_Z + (2 + num_Z) * K + 2 + K - 1)],
     # gammas, 0.01)
 
     # zipm, no beta5 initials <- c(init[1:2], 0, init[3], 0,
@@ -95,15 +95,13 @@ compare_mu <- function(dat, init2, group, K, num_Z, Z_names, XMint,
     if (sum(ord != 1:K) > 0) {
         init2[s + 1 + 1:((2 + num_Z) * K)] <- c(matrix(theta_trans[["alpha_k"]],
             ncol = K)[, ord])
-        init2[s + 1 + (2 + num_Z) * K + n_M2nd_param + 1:(K -
-            1)] <- theta_trans[["psi_k"]][ord][-K]
+        init2[s + 1 + (2 + num_Z) * K + n_M2nd_param + 1:(K - 1)] <- theta_trans[["psi_k"]][ord][-K]
     }
     if (group == 1) {
         tau2 <- negQ2_G1(dat, init2, K, num_Z, Z_names, XMint,
             calculate_tau = T)
     } else {
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
-            calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
     }
     return(list(init2 = init2, tau2 = tau2))
 }
@@ -117,8 +115,8 @@ ComputeInit2 <- function(dat, K, B, ...) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given
-# data and current estimates for group 2: -Q2
+# respect to conditional distribution of 1(Ci = k) given data
+# and current estimates for group 2: -Q2
 negQ_G2 <- function(dat, theta, K, ...) {
     UseMethod("negQ_G2")
 }
@@ -139,31 +137,29 @@ negQ <- function(dat, theta, K, num_Z, Z_names, XMint, B, tau = NULL,
         theta <- G12_init(theta, XMint)
         if (!calculate_tau) {
             if (!calculate_ll) {
-                out <- negQ_G1(dat, theta, K, num_Z, Z_names,
-                  B, tauG1 = tau$tauG1, calculate_tau, calculate_ll) +
+                out <- negQ_G1(dat, theta, K, num_Z, Z_names, B,
+                  tauG1 = tau$tauG1, calculate_tau, calculate_ll) +
                   negQ_G2(dat, theta, K, num_Z, Z_names, B, tauG2 = tau$tauG2,
                     calculate_tau, calculate_ll)
             } else {
-                out <- negQ_G1(dat, theta, K, num_Z, Z_names,
-                  B, tauG1 = NULL, calculate_tau, calculate_ll) +
+                out <- negQ_G1(dat, theta, K, num_Z, Z_names, B,
+                  tauG1 = NULL, calculate_tau, calculate_ll) +
                   negQ_G2(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
                     calculate_tau, calculate_ll)
             }
             # print(theta);print(out)
         } else {
-            out <- list(tauG1 = negQ_G1(dat, theta, K, num_Z,
-                Z_names, B = NULL, tauG1 = NULL, calculate_tau,
-                calculate_ll), tauG2 = negQ_G2(dat, theta, K,
-                num_Z, Z_names, B, tauG2 = NULL, calculate_tau,
-                calculate_ll))
+            out <- list(tauG1 = negQ_G1(dat, theta, K, num_Z, Z_names,
+                B = NULL, tauG1 = NULL, calculate_tau, calculate_ll),
+                tauG2 = negQ_G2(dat, theta, K, num_Z, Z_names,
+                  B, tauG2 = NULL, calculate_tau, calculate_ll))
         }
         # if (is.nan(out)) { print(theta);print(out) }
     } else {
         if (!calculate_tau) {
             if (!calculate_ll) {
                 out <- negQ2_G1(dat, theta, K, num_Z, Z_names,
-                  XMint, B, tauG1 = tau$tauG1, calculate_tau,
-                  calculate_ll)
+                  XMint, B, tauG1 = tau$tauG1, calculate_tau, calculate_ll)
             } else {
                 out <- negQ2_G1(dat, theta, K, num_Z, Z_names,
                   XMint, B, tauG1 = NULL, calculate_tau, calculate_ll)
@@ -193,9 +189,9 @@ parameter_names <- function(dat, K, num_Z, Z_names, XMint) {
     variation <- if ("zipm" %in% class(dat))
         NULL else ifelse("zilonm" %in% class(dat), "xi0", "r")
     out <- c(paste0("beta", c(0:5, Z_names)), "delta", paste0("alpha",
-        rep(1:K, each = 2 + num_Z), rep(c(0:1, Z_names), K)),
-        variation, paste0("psi", 1:K)[-K], paste0("gamma", c(0:1,
-            Z_names)), "eta")
+        rep(1:K, each = 2 + num_Z), rep(c(0:1, Z_names), K)), variation,
+        paste0("psi", 1:K)[-K], paste0("gamma", c(0:1, Z_names)),
+        "eta")
     if (sum(XMint) != 2) {
         out <- out[-c(5, 6)[!XMint]]
     }
@@ -216,13 +212,11 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
     if (sum(dat$Mobs == 0) == 0) {
         index <- G1_index(dat, K, num_Z, XMint)
         cinit <- init2 <- init2[index]
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
-            calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
         p <- length(init2)
         countEM <- NA
     } else {
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
-            calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
         p <- length(init2)
         init <- rep(0, p)
         countEM <- 0
@@ -236,9 +230,8 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
             # nlminb(init,function(x)negQ(dat,x,K,num_Z,Z_names,
             # XMint,B,tau), lower = c(rep(-1000,6 +
             # 2*K),rep(0, K-1),-1000,-1000,1e-6,1e-6), upper
-            # = c(rep(1000,6 + 2*K),rep(1,
-            # K-1),rep(1000,4)), control =
-            # list(eval.max=5000,iter.max=5000))
+            # = c(rep(1000,6 + 2*K),rep(1, K-1),rep(1000,4)),
+            # control = list(eval.max=5000,iter.max=5000))
             m <- constrOptim(init, function(x) negQ(dat, x, K,
                 num_Z, Z_names, XMint, B, tau), grad = NULL, ui = bd$ui,
                 ci = bd$ci, outer.iterations = 500, control = list(maxit = 50000))
@@ -273,7 +266,7 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
 }
 
 analysis2 <- function(dat, K, B, est, tau2, x1, x2, num_Z, Z_names,
-    XMint, zval) {
+    XMint, zval, mval) {
     # method 1: hessian from log-likelihood function,
     # parameter estimation cannot do this
     hess <- pracma::hessian(function(x) negQ(dat, x, K, num_Z,
@@ -290,8 +283,8 @@ analysis2 <- function(dat, K, B, est, tau2, x1, x2, num_Z, Z_names,
             Z_names, XMint, B, tau2), x = est)
         # grad() function in numDeriv
         g2 <- function(y) {
-            numDeriv::grad(function(x) g(dat, x, y, K, num_Z,
-                Z_names, XMint, B), x = est)
+            numDeriv::grad(function(x) g(dat, x, y, K, num_Z, Z_names,
+                XMint, B), x = est)
         }
         # jacobian() function in numDeriv
         h.2 <- numDeriv::jacobian(g2, est)
@@ -307,13 +300,14 @@ analysis2 <- function(dat, K, B, est, tau2, x1, x2, num_Z, Z_names,
     # mediation effects
     Group1 <- sum(dat$Mobs == 0) == 0
     MedZIM <- effects(dat, theta = est, x1, x2, K, num_Z, zval,
-        XMint, calculate_se = T, vcovar, Group1)
+        mval, XMint, calculate_se = T, vcovar, Group1)
     out <- list(se = se, MedZIM = MedZIM)
     return(out)
 }
 
 realanalysis <- function(dat, distM_sequence, K_sequence, selection,
-    XMint, x1, x2, zval, num_Z, Z_names, limits, B, seed, ncore) {
+    XMint, x1, x2, zval, num_Z, Z_names, mval, limits, B, seed,
+    ncore) {
     set.seed(seed)
     iter <- data.frame(distM = rep(distM_sequence, each = length(K_sequence)),
         K = rep(K_sequence, length(distM_sequence)))
@@ -337,17 +331,17 @@ realanalysis <- function(dat, distM_sequence, K_sequence, selection,
             dat2 <- dat
             class(dat2) <- c(iter$distM[i], class(dat2))
             model_i <- tryCatch({
-                analysis(dat2, K = iter$K[i], num_Z, Z_names,
-                  XMint, B, limits, seed)
+                analysis(dat2, K = iter$K[i], num_Z, Z_names, XMint,
+                  B, limits, seed)
             }, error = function(e) {
                 # print(e)
                 list(init = NA, est = NA, countEM = NA, AIC = Inf,
                   BIC = Inf, tau2 = NA, e = e)
             })
-            # model_i <- analysis(dat2, K = iter$K[i],
-            # num_Z, Z_names, XMint, B, limits, seed)
-            print(paste0("distM = ", iter$distM[i], ", K = ",
-                iter$K[i], " completed."))
+            # model_i <- analysis(dat2, K = iter$K[i], num_Z,
+            # Z_names, XMint, B, limits, seed)
+            print(paste0("distM = ", iter$distM[i], ", K = ", iter$K[i],
+                " completed."))
             return(model_i)
         }
     parallel::stopCluster(cl)
@@ -372,7 +366,7 @@ realanalysis <- function(dat, distM_sequence, K_sequence, selection,
     analysis2_out <- tryCatch({
         analysis2(dat, K = selected_K, B, est = selected_model$est,
             tau2 = selected_model$tau2, x1, x2, num_Z, Z_names,
-            XMint, zval)
+            XMint, zval, mval)
     }, error = function(e) {
         print(e)
         list(se = NA, MedZIM = data.frame(eff = rep(NA, 3), eff_se = rep(NA,
@@ -396,7 +390,8 @@ realanalysis <- function(dat, distM_sequence, K_sequence, selection,
     # mediation and direct effects
     out_MedZIM <- analysis2_out$MedZIM
     results_effects <- results(out_MedZIM$eff, out_MedZIM$eff_se)
-    rownames(results_effects) <- c("NIE1", "NIE2", "NIE")
+    rownames(results_effects) <- c("NIE1", "NIE2", "NIE", "NDE",
+        "CDE")
 
     out <- list(results_effects = results_effects, results_parameters = results_parameters,
         selected_model_name = selected_model_name, BIC = BICs[which.min(selection_criteria)],

@@ -10,6 +10,7 @@
 ##' @param x1 the first value of independent variable of interest
 ##' @param x2 the second value of independent variable of interest
 ##' @param zval the value of confounders to be conditional on in estimating effects
+##' @param mval the fixed value of mediator to be conditional on in estimating CDE
 ##' @return
 ##' true_eff: a vector containing true effects
 ##' dat: a data frame containing variables:
@@ -34,18 +35,18 @@
 ##' eta.tr <- 1
 ##' theta <- c(betas.tr, delta.tr, alphas.tr,
 ##' xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
-##' out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL)
+##' out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL, mval=0)
 ##' (true_eff <- out$true_eff)
 ##' dat <- out$dat
 
 
-DataGen <- function(distM, theta, K, num_Z = 0, n, B, x1, x2,
-    zval = NULL) {
+DataGen <- function(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL,
+    mval = 0) {
     dat_placeholder <- data.frame(NULL)
     class(dat_placeholder) <- c(distM, class(dat_placeholder))
 
     out <- DataGen_call(dat_placeholder, theta, K, num_Z, n, B,
-        x1, x2, zval)
+        x1, x2, zval, mval)
     return(out)
 }
 

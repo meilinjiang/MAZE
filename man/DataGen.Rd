@@ -4,7 +4,7 @@
 \alias{DataGen}
 \title{DataGen}
 \usage{
-DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL)
+DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL, mval = 0)
 }
 \arguments{
 \item{distM}{an character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.}
@@ -24,6 +24,8 @@ DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL)
 \item{x2}{the second value of independent variable of interest}
 
 \item{zval}{the value of confounders to be conditional on in estimating effects}
+
+\item{mval}{the fixed value of mediator to be conditional on in estimating CDE}
 }
 \value{
 true_eff: a vector containing true effects
@@ -51,7 +53,7 @@ gammas.tr <- c(-1.8, 0.5)
 eta.tr <- 1
 theta <- c(betas.tr, delta.tr, alphas.tr,
 xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
-out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL)
+out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL, mval=0)
 (true_eff <- out$true_eff)
 dat <- out$dat
 }

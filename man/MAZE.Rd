@@ -17,6 +17,7 @@ MAZE(
   x1,
   x2,
   zval = NULL,
+  mval = 0,
   B = 20,
   seed = 1,
   ncore = 1
@@ -46,6 +47,8 @@ MAZE(
 \item{x2}{the second value of independent variable of interest}
 
 \item{zval}{the value of confounders to be conditional on in estimating effects}
+
+\item{mval}{the fixed value of mediator to be conditional on in estimating CDE}
 
 \item{B}{the upper bound value B to be used in the probability mechanism of observing false zeros}
 
@@ -81,7 +84,7 @@ K = 1,
 selection = 'AIC',
 X='X', M='Mobs', Y='Y', Z=NULL,
 XMint = c(TRUE, FALSE),
-x1=0, x2=1, zval = NULL,
+x1=0, x2=1, zval = NULL, mval = 0,
 B=20, seed=1)
 ## results of selected mediation model
 maze_out$results_effects # NIE1, NIE2, and NIE

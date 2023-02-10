@@ -12,14 +12,13 @@ trans.zipm <- function(dat, theta, K, xval, num_Z, zval) {
     if (K == 1) {
         psi_k <- 1
     } else {
-        psi_k <- c(theta[7 + num_Z + (2 + num_Z) * K + 1:(K -
-            1)], 1 - sum(theta[7 + num_Z + (2 + num_Z) * K + 1:(K -
-            1)]))
+        psi_k <- c(theta[7 + num_Z + (2 + num_Z) * K + 1:(K - 1)],
+            1 - sum(theta[7 + num_Z + (2 + num_Z) * K + 1:(K -
+                1)]))
     }
     gammas <- theta[7 + num_Z + (2 + num_Z) * K + (K - 1) + 1:(2 +
         num_Z)]
-    eta <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) + (2 +
-        num_Z)]
+    eta <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) + (2 + num_Z)]
 
     n0 <- length(xval)
     psi_ik <- k_to_ik(psi_k, n0)
@@ -101,8 +100,8 @@ ComputeInit.zipm <- function(dat, K, num_Z, Z_names, XMint) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given
-# data and current estimates for group 1: -Q1
+# respect to conditional distribution of 1(Ci = k) given data
+# and current estimates for group 1: -Q1
 negQ_G1.zipm <- function(dat, theta, K, num_Z, Z_names, B = NULL,
     tauG1 = NULL, calculate_tau = F, calculate_ll = F) {
     # betas, delta, alpha0k, alpha1k, alphaZ_k, w0k, gammas,
@@ -186,15 +185,13 @@ bounds.zipm <- function(dat, K, group, num_Z, XMint) {
             ui <- diag(rep(1, s + 2 + num_Z + 1))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z))
         } else {
-            ui <- diag(rep(1, s + 2 + num_Z + 1 + 2 + num_Z +
-                1))
+            ui <- diag(rep(1, s + 2 + num_Z + 1 + 2 + num_Z + 1))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z +
                 2 + num_Z), 1e-06)
         }
     } else {
         if (group == 1) {
-            ui1 <- diag(rep(1, s + 1 + (2 + num_Z) * K + (K -
-                1)))
+            ui1 <- diag(rep(1, s + 1 + (2 + num_Z) * K + (K - 1)))
             ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
                 K - 1)))
             ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K -
@@ -204,16 +201,16 @@ bounds.zipm <- function(dat, K, group, num_Z, XMint) {
                 K), rep(1e-06, K - 1), rep(-(1 - 1e-06), K - 1),
                 -(1 - 1e-06))
         } else {
-            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K -
-                1) + 2 + num_Z))
+            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K - 1) +
+                2 + num_Z))
             ui2 <- diag(c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
                 K - 1), rep(0, (2 + num_Z) + 1)))
             ui <- rbind(ui1, ui2[s + 1 + (2 + num_Z) * K + 1:(K -
                 1), ], c(rep(0, s + 1 + (2 + num_Z) * K), rep(-1,
                 K - 1), rep(0, (2 + num_Z) + 1)))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) *
-                K), rep(1e-06, K - 1), rep(-1000, 2 + num_Z),
-                1e-06, rep(-(1 - 1e-06), K - 1), -(1 - 1e-06))
+                K), rep(1e-06, K - 1), rep(-1000, 2 + num_Z), 1e-06,
+                rep(-(1 - 1e-06), K - 1), -(1 - 1e-06))
         }
     }
     return(list(ui = ui, ci = ci))
@@ -245,8 +242,8 @@ ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B,
         } else {
             init2 <- m$par
         }
-        switch <- compare_mu(dat, init2, group = 1, K, num_Z,
-            Z_names, XMint)
+        switch <- compare_mu(dat, init2, group = 1, K, num_Z, Z_names,
+            XMint)
         init2 <- switch$init2
         tau2 <- switch$tau2
         countEM <- countEM + 1
@@ -256,8 +253,7 @@ ComputeInit2.zipm <- function(dat, K, num_Z, Z_names, XMint, B,
     }
     # beta02, beta1, beta34, (beta5), beta_Z, delta,
     # alpha_0k, alpha_1k, w_0k
-    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint,
-        initials_for_full = T)
+    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint, initials_for_full = T)
     return(initials)
 }
 
@@ -270,8 +266,8 @@ loghik_zipm <- function(m, loglambda, beta0, beta1, beta2, beta3,
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given
-# data and current estimates for group 2: -Q2
+# respect to conditional distribution of 1(Ci = k) given data
+# and current estimates for group 2: -Q2
 negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
     calculate_tau = F, calculate_ll = F) {
     # group 2
@@ -304,8 +300,7 @@ negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
     # l2_ik <- cbind(-log(theta_trans[['delta']]) -
     # (Y_group2-theta_trans[['beta0']]-theta_trans[['beta3']]*X_group2-theta_trans[['beta_T_Z']])^2/(2*theta_trans[['delta']]^2)
     # - 0.5*log(2*pi), -log(theta_trans[['delta']]) -
-    # 0.5*log(2*pi) + theta_trans[['neg_log_em1']] + output
-    # )
+    # 0.5*log(2*pi) + theta_trans[['neg_log_em1']] + output )
     l2_ik <- cbind(-(Y_group2 - theta_trans[["beta0"]] - theta_trans[["beta3"]] *
         X_group2 - theta_trans[["beta_T_Z"]])^2/(2 * theta_trans[["delta"]]^2),
         theta_trans[["neg_log_em1"]] + output) - log(theta_trans[["delta"]]) -
@@ -340,8 +335,8 @@ negQ_G2.zipm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
     return(out)
 }
 
-effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
-    calculate_se = F, vcovar = NULL, Group1 = F) {
+effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, mval,
+    XMint, calculate_se = F, vcovar = NULL, Group1 = F) {
     if (Group1) {
         # theta <- c(theta[1:2], 0, theta[3], 0, theta[3 +
         # 1:(num_Z + (2 + num_Z) * K + 1 + K - 1)], -Inf, 0,
@@ -365,15 +360,20 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
     NIE2 <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] *
         x2) * (-diff(Del_x12))
     NIE <- NIE1 + NIE2
-    # NDE <- (x2 - x1)*(beta3 + beta4*(1 - Del_x1))
-    out <- data.frame(eff = c(NIE1, NIE2, NIE))
+    NDE <- diff(x12) * (theta_trans[["beta3"]] + theta_trans[["beta4"]] *
+        (1 - Del_x12[1]) + theta_trans[["beta5"]] * (1 - Delstar_x12[1]) *
+        m_x12[1])
+    CDE <- diff(x12) * (theta_trans[["beta3"]] + theta_trans[["beta4"]] *
+        (mval > 0) + theta_trans[["beta5"]] * mval)
+    out <- data.frame(eff = c(NIE1, NIE2, NIE, NDE, CDE))
 
     if (calculate_se == T) {
         # asymptotic variance by delta method
         desginMat <- cbind(1, x12, z12)
-        g_NIE1_alpha_k <- g_NIE2_alpha_k <- matrix(NA, 2 + num_Z,
-            K)
-        g_NIE1_gammas <- g_NIE2_gammas <- rep(NA, 2 + num_Z)
+        g_NIE1_alpha_k <- g_NIE2_alpha_k <- g_NDE_alpha_k <- matrix(NA,
+            2 + num_Z, K)
+        g_NIE1_gammas <- g_NIE2_gammas <- g_NDE_gammas <- rep(NA,
+            2 + num_Z)
         for (var in seq_len(2 + num_Z)) {
             g_NIE1_alpha_k[var, ] <- (theta_trans[["beta1"]] +
                 theta_trans[["beta5"]] * x2) * theta_trans[["psi_k"]] *
@@ -390,19 +390,26 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
             g_NIE2_gammas[var] <- (theta_trans[["beta2"]] + theta_trans[["beta4"]] *
                 x2) * (-1) * diff(Delstar_x12 * (1 - Del_x12) *
                 desginMat[, var])
+
+            g_NDE_alpha_k[var, ] <- diff(x12) * (1 - Delstar_x12[1]) *
+                theta_trans[["psi_k"]] * (theta_trans[["beta4"]] *
+                exp(-theta_trans[["lambda_ik"]][1, ]) + theta_trans[["beta5"]]) *
+                theta_trans[["lambda_ik"]][1, ] * desginMat[, var]
+            g_NDE_gammas[var] <- diff(x12) * (-1) * desginMat[,
+                var] * Delstar_x12[1] * (theta_trans[["beta4"]] *
+                (1 - Del_x12[1]) + theta_trans[["beta5"]] * (1 -
+                Delstar_x12[1]) * m_x12[1])
         }
-        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1,
-        # gammas
+        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1, gammas
         g_NIE1 <- c(0, diff((1 - Delstar_x12) * m_x12), rep(0,
             2 + XMint[1]), if (XMint[2]) x2 * diff((1 - Delstar_x12) *
             m_x12) else NULL, rep(0, num_Z + 1), g_NIE1_alpha_k,
             if (K == 1) NULL else (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
                 x2) * diff((theta_trans[["lambda_ik"]][, 1:(K -
-                1)] - theta_trans[["lambda_ik"]][, K]) * (1 -
-                Delstar_x12)), g_NIE1_gammas, 0)
+                1)] - theta_trans[["lambda_ik"]][, K]) * (1 - Delstar_x12)),
+            g_NIE1_gammas, 0)
 
-        # beta2, (beta4), alpha0_k, alpha1_k, psi_k-1,
-        # gammas
+        # beta2, (beta4), alpha0_k, alpha1_k, psi_k-1, gammas
         g_NIE2 <- c(rep(0, 2), -diff(Del_x12), 0, if (XMint[1]) x2 *
             (-diff(Del_x12)) else NULL, rep(0, XMint[2] + num_Z +
             1), g_NIE2_alpha_k, if (K == 1) NULL else (theta_trans[["beta2"]] +
@@ -411,20 +418,39 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval, XMint,
                 K])), g_NIE2_gammas, 0)
 
         g_NIE <- g_NIE1 + g_NIE2
+        # beta3, (beta4,beta5), alphas_k, psi_k-1, gammas
+        g_NDE <- c(rep(0, 3), diff(x12), if (XMint[1]) diff(x12) *
+            (1 - Del_x12[1]) else NULL, if (XMint[2]) diff(x12) *
+            (1 - Delstar_x12[1]) * m_x12[1] else NULL, rep(0, num_Z +
+            1), g_NDE_alpha_k, if (K == 1) NULL else diff(x12) *
+            (1 - Delstar_x12[1]) * (-theta_trans[["beta4"]] * (exp(-theta_trans[["lambda_ik"]][1,
+            1:(K - 1)]) - exp(-theta_trans[["lambda_ik"]][1, K])) +
+            theta_trans[["beta5"]] * (theta_trans[["lambda_ik"]][1,
+                1:(K - 1)] - theta_trans[["lambda_ik"]][1, K])),
+            g_NDE_gammas, 0)
+        # beta3, (beta4,beta5)
+        g_CDE <- c(rep(0, 3), diff(x12), if (XMint[1]) diff(x12) *
+            (mval > 0) else NULL, if (XMint[2]) diff(x12) * mval else NULL,
+            rep(0, num_Z + 1 + (2 + num_Z) * K + (K - 1) + (2 +
+                num_Z) + 1))
 
         if (Group1) {
             index <- G1_index(dat, K, num_Z, XMint)
             g_NIE1 <- g_NIE1[index]
             g_NIE2 <- g_NIE2[index]
             g_NIE <- g_NIE[index]
+            g_NDE <- g_NDE[index]
+            g_CDE <- g_CDE[index]
             NIE2_se <- NA
         } else {
             NIE2_se <- sqrt(c(g_NIE2 %*% vcovar %*% g_NIE2))
         }
         NIE1_se <- sqrt(c(g_NIE1 %*% vcovar %*% g_NIE1))
         NIE_se <- sqrt(c(g_NIE %*% vcovar %*% g_NIE))
+        NDE_se <- sqrt(c(g_NDE %*% vcovar %*% g_NDE))
+        CDE_se <- sqrt(c(g_CDE %*% vcovar %*% g_CDE))
 
-        out$eff_se <- c(NIE1_se, NIE2_se, NIE_se)
+        out$eff_se <- c(NIE1_se, NIE2_se, NIE_se, NDE_se, CDE_se)
     }
     return(out)
 }

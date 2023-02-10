@@ -17,6 +17,7 @@
 ##' @param x1 the first value of independent variable of interest
 ##' @param x2 the second value of independent variable of interest
 ##' @param zval the value of confounders to be conditional on in estimating effects
+##' @param mval the fixed value of mediator to be conditional on in estimating CDE
 ##' @param B the upper bound value B to be used in the probability mechanism of observing false zeros
 ##' @param seed an optional seed number to control randomness
 ##' @param ncore number of cores available for parallel computing
@@ -44,7 +45,7 @@
 ##' selection = 'AIC',
 ##' X='X', M='Mobs', Y='Y', Z=NULL,
 ##' XMint = c(TRUE, FALSE),
-##' x1=0, x2=1, zval = NULL,
+##' x1=0, x2=1, zval = NULL, mval = 0,
 ##' B=20, seed=1)
 ##' ## results of selected mediation model
 ##' maze_out$results_effects # NIE1, NIE2, and NIE
@@ -55,7 +56,7 @@
 
 MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
     selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE, FALSE),
-    x1, x2, zval = NULL, B = 20, seed = 1, ncore = 1) {
+    x1, x2, zval = NULL, mval = 0, B = 20, seed = 1, ncore = 1) {
     distM_sequence <- distM
     K_sequence <- K
     limits <- 0.001
@@ -77,12 +78,12 @@ MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
 
     out <- tryCatch({
         realanalysis(dat, distM_sequence, K_sequence, selection,
-            XMint, x1, x2, zval, num_Z, Z_names, limits, B, seed,
-            ncore)
+            XMint, x1, x2, zval, num_Z, Z_names, mval, limits,
+            B, seed, ncore)
     }, error = function(e) {
         print(e)
-        # list(results_effects = NA, results_parameters =
-        # NA, BIC = Inf, AIC = Inf, e = e)
+        # list(results_effects = NA, results_parameters = NA,
+        # BIC = Inf, AIC = Inf, e = e)
     })
     return(out)
 }
