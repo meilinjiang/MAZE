@@ -406,7 +406,7 @@ effects.zipm <- function(dat, theta, x1, x2, K, num_Z, zval,
                 exp(-theta_trans[["lambda_ik"]][1, ]) + theta_trans[["beta5"]]) *
                 theta_trans[["lambda_ik"]][1, ] * desginMat[1,
                 var]
-            g_NDE_gammas[var] <- diff(x12) * (-1) * desginMat[,
+            g_NDE_gammas[var] <- diff(x12) * (-1) * desginMat[1,
                 var] * Delstar_x12[1] * (theta_trans[["beta4"]] *
                 (1 - Del_x12[1]) + theta_trans[["beta5"]] *
                 (1 - Delstar_x12[1]) * m_x12[1])

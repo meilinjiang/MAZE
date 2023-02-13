@@ -408,7 +408,7 @@ effects.zilonm <- function(dat, theta, x1, x2, K, num_Z, zval,
 
             g_NDE_gammas[var] <- diff(x12) * (theta_trans[["beta4"]] +
                 theta_trans[["beta5"]] * m_x12[1]) * (-1) *
-                Del_x12[1] * (1 - Del_x12[1]) * desginMat[,
+                Del_x12[1] * (1 - Del_x12[1]) * desginMat[1,
                 var]
         }
         # beta1, (beta5), alpha0_k, alpha1_k, xi0,
