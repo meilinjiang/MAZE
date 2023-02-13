@@ -59,7 +59,7 @@ MAZE(
 \value{
 a list containing:
 \itemize{
-\item results_effects: a data frame for the results of estimated mediation effect,
+\item results_effects: a data frame for the results of estimated effects,
 \item results_parameters: a data frame for the results of model parameters,
 \item selected_model_name: a string for the distribution of M and number of components K selected in the final mediation model
 \item BIC: a numeric value for the BIC of the final mediation model,
@@ -87,7 +87,7 @@ XMint = c(TRUE, FALSE),
 x1=0, x2=1, zval = NULL, mval = 0,
 B=20, seed=1)
 ## results of selected mediation model
-maze_out$results_effects # NIE1, NIE2, and NIE
+maze_out$results_effects # indirect and direct effects
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 maze_out$selected_disM # distribution of the mediator in the selected mediation model

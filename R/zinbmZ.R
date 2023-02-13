@@ -14,13 +14,14 @@ trans.zinbm <- function(dat, theta, K, xval, num_Z, zval) {
     if (K == 1) {
         psi_k <- 1
     } else {
-        psi_k <- c(theta[8 + num_Z + (2 + num_Z) * K + 1:(K - 1)],
-            1 - sum(theta[8 + num_Z + (2 + num_Z) * K + 1:(K -
-                1)]))
+        psi_k <- c(theta[8 + num_Z + (2 + num_Z) * K + 1:(K -
+            1)], 1 - sum(theta[8 + num_Z + (2 + num_Z) * K +
+            1:(K - 1)]))
     }
-    gammas <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) + 1:(2 +
+    gammas <- theta[8 + num_Z + (2 + num_Z) * K + (K - 1) +
+        1:(2 + num_Z)]
+    eta <- theta[9 + num_Z + (2 + num_Z) * K + (K - 1) + (2 +
         num_Z)]
-    eta <- theta[9 + num_Z + (2 + num_Z) * K + (K - 1) + (2 + num_Z)]
 
     n0 <- length(xval)
     psi_ik <- matrix(k_to_ik(psi_k, n0), ncol = K)
@@ -42,7 +43,8 @@ trans.zinbm <- function(dat, theta, K, xval, num_Z, zval) {
 
     Delstar_i <- expit(rowSums(k_to_ik(gammas, n0) * designMat_M))
     p_ik <- r/(r + mu_ik)
-    Del_i <- Delstar_i + (1 - Delstar_i) * rowSums(psi_ik * p_ik^r)
+    Del_i <- Delstar_i + (1 - Delstar_i) * rowSums(psi_ik *
+        p_ik^r)
 
     theta_trans <- list(beta0 = beta0, beta1 = beta1, beta2 = beta2,
         beta3 = beta3, beta4 = beta4, beta5 = beta5, delta = delta,
@@ -90,15 +92,16 @@ ComputeInit.zinbm <- function(dat, K, num_Z, Z_names, XMint) {
     }
 
     # method 3: distribution 1 as the one with smaller
-    # cluster mean since x=age, intercepts are not accurate
-    # enough
+    # cluster mean since x=age, intercepts are not
+    # accurate enough
     mu <- cl$centers
     # mu <-
     # parameters(cl)[1,]+parameters(cl)[2,]*mean(X_group1)
     ord <- order(mu)
     mix <- para[, ord, drop = F]
     # alpha_0k, alpha_1k, r, psik
-    mix_init <- c(mix[1:(2 + num_Z), ], mean(mix[3 + num_Z, ]))
+    mix_init <- c(mix[1:(2 + num_Z), ], mean(mix[3 + num_Z,
+        ]))
     psi_k <- cl$size[ord]/nrow(dat_g1)
     mix_init <- c(mix_init, psi_k[-K])
 
@@ -113,8 +116,8 @@ logbinom <- function(r, M_i) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given data
-# and current estimates for group 1: -Q1
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 1: -Q1
 negQ_G1.zinbm <- function(dat, theta, K, num_Z, Z_names, B = NULL,
     tauG1 = NULL, calculate_tau = F, calculate_ll = F) {
     # betas, delta, alpha0k, alpha1k, alphaZ_k, r, w0k,
@@ -141,8 +144,8 @@ negQ_G1.zinbm <- function(dat, theta, K, num_Z, Z_names, B = NULL,
             pf0 <- exp(-theta_trans[["eta"]]^2 * M_group1)
         }
         pf0[M_group1 > B] <- 0
-        l1_ik <- -log(theta_trans[["delta"]]) - 0.5 * log(2 * pi) +
-            log(1 - pf0) - (Y_group1 - theta_trans[["beta0"]] -
+        l1_ik <- -log(theta_trans[["delta"]]) - 0.5 * log(2 *
+            pi) + log(1 - pf0) - (Y_group1 - theta_trans[["beta0"]] -
             theta_trans[["beta1"]] * M_group1 - theta_trans[["beta2"]] -
             (theta_trans[["beta3"]] + theta_trans[["beta4"]]) *
                 X_group1 - theta_trans[["beta5"]] * X_group1 *
@@ -160,8 +163,8 @@ negQ_G1.zinbm <- function(dat, theta, K, num_Z, Z_names, B = NULL,
             # calculating hessian: from log likelihood
             # function parameter estimation cannot use it
             # (has many saddle points so need EM), but
-            # hessian can l1_i <- log( bigpsi1*exp(l1_ik1) +
-            # bigpsi2*exp(l1_ik2) )
+            # hessian can l1_i <- log( bigpsi1*exp(l1_ik1)
+            # + bigpsi2*exp(l1_ik2) )
             pow_max <- apply(pow, 1, max)
             l1_i <- log(rowSums(exp(pow - pow_max))) + pow_max
             out <- -sum(l1_i)
@@ -189,13 +192,15 @@ bounds.zinbm <- function(dat, K, group, num_Z, XMint) {
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z),
                 1e-06)
         } else {
-            ui <- diag(rep(1, s + 2 + num_Z + 2 + 2 + num_Z + 1))
+            ui <- diag(rep(1, s + 2 + num_Z + 2 + 2 + num_Z +
+                1))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, 2 + num_Z),
                 1e-06, rep(-1000, 2 + num_Z), 1e-06)
         }
     } else {
         if (group == 1) {
-            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K - 1)))
+            ui1 <- diag(rep(1, s + 2 + (2 + num_Z) * K + (K -
+                1)))
             ui2 <- diag(c(rep(0, s + 2 + (2 + num_Z) * K), rep(-1,
                 K - 1)))
             ui <- rbind(ui1, ui2[s + 2 + (2 + num_Z) * K + 1:(K -
@@ -205,23 +210,24 @@ bounds.zinbm <- function(dat, K, group, num_Z, XMint) {
                 K), 1e-06, rep(1e-06, K - 1), rep(-(1 - 1e-06),
                 K - 1), -(1 - 1e-06))
         } else {
-            ui1 <- diag(rep(1, s + 3 + (2 + num_Z) * K + (K - 1) +
-                2 + num_Z))
+            ui1 <- diag(rep(1, s + 3 + (2 + num_Z) * K + (K -
+                1) + 2 + num_Z))
             ui2 <- diag(c(rep(0, s + 2 + (2 + num_Z) * K), rep(-1,
                 K - 1), rep(0, (2 + num_Z) + 1)))
             ui <- rbind(ui1, ui2[s + 2 + (2 + num_Z) * K + 1:(K -
                 1), ], c(rep(0, s + 2 + (2 + num_Z) * K), rep(-1,
                 K - 1), rep(0, (2 + num_Z) + 1)))
             ci <- c(rep(-1000, s), 1e-06, rep(-1000, (2 + num_Z) *
-                K), 1e-06, rep(1e-06, K - 1), rep(-1000, 2 + num_Z),
-                1e-06, rep(-(1 - 1e-06), K - 1), -(1 - 1e-06))
+                K), 1e-06, rep(1e-06, K - 1), rep(-1000, 2 +
+                num_Z), 1e-06, rep(-(1 - 1e-06), K - 1), -(1 -
+                1e-06))
         }
     }
     return(list(ui = ui, ci = ci))
 }
 
-ComputeInit2.zinbm <- function(dat, K, num_Z, Z_names, XMint, B,
-    limits, explicit = T) {
+ComputeInit2.zinbm <- function(dat, K, num_Z, Z_names, XMint,
+    B, limits, explicit = T) {
     init2 <- ComputeInit(dat, K, num_Z, Z_names, XMint)
     tau2 <- negQ2_G1(dat, init2, K, num_Z, Z_names, XMint, calculate_tau = T)
     init <- rep(0, length(init2))
@@ -236,9 +242,9 @@ ComputeInit2.zinbm <- function(dat, K, num_Z, Z_names, XMint, B,
         # m <-
         # nlminb(init,function(x)negQ2_G1(dat,x,K,num_Z,Z_names,
         # XMint,B,tau),lower = c(rep(-1000,9),1e-6))
-        m <- constrOptim(init, function(x) negQ2_G1(dat, x, K,
-            num_Z, Z_names, XMint, B, tau), grad = NULL, ui = bd$ui,
-            ci = bd$ci, control = list(maxit = 5000))
+        m <- constrOptim(init, function(x) negQ2_G1(dat, x,
+            K, num_Z, Z_names, XMint, B, tau), grad = NULL,
+            ui = bd$ui, ci = bd$ci, control = list(maxit = 5000))
         if (m$convergence != 0) {
             print(paste0("ComputeInit2=", m$convergence))
             init2 <- NA
@@ -246,8 +252,8 @@ ComputeInit2.zinbm <- function(dat, K, num_Z, Z_names, XMint, B,
         } else {
             init2 <- m$par
         }
-        switch <- compare_mu(dat, init2, group = 1, K, num_Z, Z_names,
-            XMint)
+        switch <- compare_mu(dat, init2, group = 1, K, num_Z,
+            Z_names, XMint)
         init2 <- switch$init2
         tau2 <- switch$tau2
         countEM <- countEM + 1
@@ -258,26 +264,27 @@ ComputeInit2.zinbm <- function(dat, K, num_Z, Z_names, XMint, B,
 
     # beta02, beta1, beta34, (beta5), beta_Z, delta,
     # alpha_0k, alpha_1k, r, w_0k
-    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint, initials_for_full = T)
+    initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint,
+        initials_for_full = T)
     s <- 4 + XMint[1] + XMint[2] + num_Z
-    initials[s + 1 + (2 + num_Z) * K + 1] <- initials[s + 1 + (2 +
-        num_Z) * K + 1]/2
+    initials[s + 1 + (2 + num_Z) * K + 1] <- initials[s + 1 +
+        (2 + num_Z) * K + 1]/2
     return(initials)
 }
 
 # log(factorial(m)) = sum(log(m)) more stable using log
-loghik_zinbm <- function(m, r, p, beta0, beta1, beta2, beta3, beta4,
-    beta5, beta_T_Z, delta, eta, x, y) {
-    logbinom(r, m) + m * log(1 - p) - ((y - beta0 - beta1 * m -
-        beta2 - (beta3 + beta4) * x - beta5 * x * m - beta_T_Z)^2)/(2 *
+loghik_zinbm <- function(m, r, p, beta0, beta1, beta2, beta3,
+    beta4, beta5, beta_T_Z, delta, eta, x, y) {
+    logbinom(r, m) + m * log(1 - p) - ((y - beta0 - beta1 *
+        m - beta2 - (beta3 + beta4) * x - beta5 * x * m - beta_T_Z)^2)/(2 *
         delta^2) - eta^2 * m
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given data
-# and current estimates for group 2: -Q2
-negQ_G2.zinbm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
-    calculate_tau = F, calculate_ll = F) {
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 2: -Q2
+negQ_G2.zinbm <- function(dat, theta, K, num_Z, Z_names, B,
+    tauG2 = NULL, calculate_tau = F, calculate_ll = F) {
     # group 2
     Y_group2 <- dat$Y[which(dat$Mobs == 0)]
     X_group2 <- dat$X[which(dat$Mobs == 0)]
@@ -293,10 +300,10 @@ negQ_G2.zinbm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
     for (i in 1:B) {
         loghik_m[[i]] <- loghik_zinbm(m = i, theta_trans[["r"]],
             theta_trans[["p_ik"]], theta_trans[["beta0"]], theta_trans[["beta1"]],
-            theta_trans[["beta2"]], theta_trans[["beta3"]], theta_trans[["beta4"]],
-            theta_trans[["beta5"]], theta_trans[["beta_T_Z"]],
-            theta_trans[["delta"]], theta_trans[["eta"]], x = X_group2,
-            y = Y_group2)
+            theta_trans[["beta2"]], theta_trans[["beta3"]],
+            theta_trans[["beta4"]], theta_trans[["beta5"]],
+            theta_trans[["beta_T_Z"]], theta_trans[["delta"]],
+            theta_trans[["eta"]], x = X_group2, y = Y_group2)
     }
     loghik_mmax <- NULL
     for (k in seq_len(K)) {
@@ -326,8 +333,9 @@ negQ_G2.zinbm <- function(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
             # calculating hessian: from log likelihood
             # function parameter estimation cannot use it
             # (has many saddle points so need EM), but
-            # hessian can l2_i <- log( bigpsi0*exp(l2_ik0) +
-            # bigpsi1*exp(l2_ik1) + bigpsi2*exp(l2_ik2) )
+            # hessian can l2_i <- log( bigpsi0*exp(l2_ik0)
+            # + bigpsi1*exp(l2_ik1) + bigpsi2*exp(l2_ik2)
+            # )
             pow_max <- apply(pow, 1, max)
             l2_i <- log(rowSums(exp(pow - pow_max))) + pow_max
             out <- -sum(l2_i)
@@ -361,8 +369,8 @@ f_NDE_zinbm <- function(dat, theta, K, num_Z, XMint, x12, z12) {
     return(NDE)
 }
 
-effects.zinbm <- function(dat, theta, x1, x2, K, num_Z, zval, mval,
-    XMint, calculate_se = F, vcovar = NULL, Group1 = F) {
+effects.zinbm <- function(dat, theta, x1, x2, K, num_Z, zval,
+    mval, XMint, calculate_se = F, vcovar = NULL, Group1 = F) {
     if (Group1) {
     }
     theta <- G12_init(theta, XMint)
@@ -402,26 +410,28 @@ effects.zinbm <- function(dat, theta, x1, x2, K, num_Z, zval, mval,
                 theta_trans[["beta5"]] * x2) * theta_trans[["psi_k"]] *
                 diff((1 - Delstar_x12) * theta_trans[["mu_ik"]] *
                   desginMat[, var])
-            g_NIE1_gammas[var] <- (theta_trans[["beta1"]] + theta_trans[["beta5"]] *
-                x2) * (-1) * diff(Delstar_x12 * (1 - Delstar_x12) *
-                m_x12 * desginMat[, var])
+            g_NIE1_gammas[var] <- (theta_trans[["beta1"]] +
+                theta_trans[["beta5"]] * x2) * (-1) * diff(Delstar_x12 *
+                (1 - Delstar_x12) * m_x12 * desginMat[, var])
         }
-        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1, gammas
+        # beta1, (beta5), alpha0_k, alpha1_k, psi_k-1,
+        # gammas
         g_NIE1 <- c(0, diff((1 - Delstar_x12) * m_x12), rep(0,
             2 + XMint[1]), if (XMint[2]) x2 * diff((1 - Delstar_x12) *
             m_x12) else NULL, rep(0, num_Z + 1), g_NIE1_alpha_k,
             0, if (K == 1) NULL else (theta_trans[["beta1"]] +
                 theta_trans[["beta5"]] * x2) * diff((theta_trans[["mu_ik"]][,
-                1:(K - 1)] - theta_trans[["mu_ik"]][, K]) * (1 -
-                Delstar_x12)), g_NIE1_gammas, 0)
+                1:(K - 1)] - theta_trans[["mu_ik"]][, K]) *
+                (1 - Delstar_x12)), g_NIE1_gammas, 0)
 
         # beta2, (beta4), alpha0_k, alpha1_k, r, psi_k-1,
         # gammas
         g_NIE2 <- numDeriv::grad(function(x) f_NIE2_zinbm(dat,
             x, K, num_Z, XMint, x12, z12), theta)
-        # beta3, (beta4,beta5), alphas_k, r, psi_k-1, gammas
-        g_NDE <- numDeriv::grad(function(x) f_NDE_zinbm(dat, x,
-            K, num_Z, XMint, x12, z12), theta)
+        # beta3, (beta4,beta5), alphas_k, r, psi_k-1,
+        # gammas
+        g_NDE <- numDeriv::grad(function(x) f_NDE_zinbm(dat,
+            x, K, num_Z, XMint, x12, z12), theta)
         if (sum(XMint) != 2) {
             g_NIE2 <- g_NIE2[-c(5, 6)[!XMint]]
             g_NDE <- g_NDE[-c(5, 6)[!XMint]]
@@ -431,9 +441,9 @@ effects.zinbm <- function(dat, theta, x1, x2, K, num_Z, zval, mval,
 
         # beta3, (beta4,beta5)
         g_CDE <- c(rep(0, 3), diff(x12), if (XMint[1]) diff(x12) *
-            (mval > 0) else NULL, if (XMint[2]) diff(x12) * mval else NULL,
-            rep(0, num_Z + 1 + (2 + num_Z) * K + 1 + (K - 1) +
-                (2 + num_Z) + 1))
+            (mval > 0) else NULL, if (XMint[2]) diff(x12) *
+            mval else NULL, rep(0, num_Z + 1 + (2 + num_Z) *
+            K + 1 + (K - 1) + (2 + num_Z) + 1))
 
         NIE1_se <- sqrt(c(g_NIE1 %*% vcovar %*% g_NIE1))
         NIE2_se <- sqrt(c(g_NIE2 %*% vcovar %*% g_NIE2))

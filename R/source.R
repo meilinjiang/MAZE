@@ -22,8 +22,8 @@ ComputeInit <- function(dat, K, ...) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given data
-# and current estimates for group 1: -Q1
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 1: -Q1
 negQ_G1 <- function(dat, theta, K, ...) {
     UseMethod("negQ_G1")
 }
@@ -42,17 +42,17 @@ G1_init <- function(dat, init, K, num_Z, Z_names, XMint, initials_for_full = F) 
         initials <- c(init[1:2], 0, init[3], rep(0, ifelse(XMint[2],
             1, 2)), init[4:length(init)], gammas, 0.01)
     }
-    # zilonm, with beta5 initials <- c(init[1:2], 0, init[3],
-    # 0, init[4], init[4 + 1:(num_Z + (2 + num_Z) * K + 2 + K
-    # - 1)], gammas, 0.01)
+    # zilonm, with beta5 initials <- c(init[1:2], 0,
+    # init[3], 0, init[4], init[4 + 1:(num_Z + (2 + num_Z)
+    # * K + 2 + K - 1)], gammas, 0.01)
 
-    # zinbm, no beta5 initials <- c(init[1:2], 0, init[3], 0,
-    # init[3 + 1:(num_Z + (2 + num_Z) * K + 2 + K - 1)],
-    # gammas, 0.01)
+    # zinbm, no beta5 initials <- c(init[1:2], 0, init[3],
+    # 0, init[3 + 1:(num_Z + (2 + num_Z) * K + 2 + K -
+    # 1)], gammas, 0.01)
 
-    # zipm, no beta5 initials <- c(init[1:2], 0, init[3], 0,
-    # init[3 + 1:(num_Z + (2 + num_Z) * K + 1 + K - 1)],
-    # gammas, 0.01)
+    # zipm, no beta5 initials <- c(init[1:2], 0, init[3],
+    # 0, init[3 + 1:(num_Z + (2 + num_Z) * K + 1 + K -
+    # 1)], gammas, 0.01)
     return(initials)
 }
 
@@ -60,13 +60,13 @@ G1_init <- function(dat, init, K, num_Z, Z_names, XMint, initials_for_full = F) 
 negQ2_G1 <- function(dat, init, K, num_Z, Z_names, XMint, B = NULL,
     tauG1 = NULL, calculate_tau = F, calculate_ll = F) {
     initials <- G1_init(dat, init, K, num_Z, Z_names, XMint)
-    out <- negQ_G1(dat, theta = initials, K, num_Z, Z_names, B,
-        tauG1, calculate_tau, calculate_ll)
+    out <- negQ_G1(dat, theta = initials, K, num_Z, Z_names,
+        B, tauG1, calculate_tau, calculate_ll)
     return(out)
 }
 
-compare_mu <- function(dat, init2, group, K, num_Z, Z_names, XMint,
-    B = NULL) {
+compare_mu <- function(dat, init2, group, K, num_Z, Z_names,
+    XMint, B = NULL) {
     if (group == 1) {
         initials <- G1_init(dat, init2, K, num_Z, Z_names, XMint)
         s <- 3 + XMint[2] + num_Z
@@ -95,13 +95,15 @@ compare_mu <- function(dat, init2, group, K, num_Z, Z_names, XMint,
     if (sum(ord != 1:K) > 0) {
         init2[s + 1 + 1:((2 + num_Z) * K)] <- c(matrix(theta_trans[["alpha_k"]],
             ncol = K)[, ord])
-        init2[s + 1 + (2 + num_Z) * K + n_M2nd_param + 1:(K - 1)] <- theta_trans[["psi_k"]][ord][-K]
+        init2[s + 1 + (2 + num_Z) * K + n_M2nd_param + 1:(K -
+            1)] <- theta_trans[["psi_k"]][ord][-K]
     }
     if (group == 1) {
         tau2 <- negQ2_G1(dat, init2, K, num_Z, Z_names, XMint,
             calculate_tau = T)
     } else {
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
+            calculate_tau = T)
     }
     return(list(init2 = init2, tau2 = tau2))
 }
@@ -115,8 +117,8 @@ ComputeInit2 <- function(dat, K, B, ...) {
 }
 
 # negative expectation of log-likelihood function with
-# respect to conditional distribution of 1(Ci = k) given data
-# and current estimates for group 2: -Q2
+# respect to conditional distribution of 1(Ci = k) given
+# data and current estimates for group 2: -Q2
 negQ_G2 <- function(dat, theta, K, ...) {
     UseMethod("negQ_G2")
 }
@@ -137,29 +139,31 @@ negQ <- function(dat, theta, K, num_Z, Z_names, XMint, B, tau = NULL,
         theta <- G12_init(theta, XMint)
         if (!calculate_tau) {
             if (!calculate_ll) {
-                out <- negQ_G1(dat, theta, K, num_Z, Z_names, B,
-                  tauG1 = tau$tauG1, calculate_tau, calculate_ll) +
-                  negQ_G2(dat, theta, K, num_Z, Z_names, B, tauG2 = tau$tauG2,
-                    calculate_tau, calculate_ll)
+                out <- negQ_G1(dat, theta, K, num_Z, Z_names,
+                  B, tauG1 = tau$tauG1, calculate_tau, calculate_ll) +
+                  negQ_G2(dat, theta, K, num_Z, Z_names, B,
+                    tauG2 = tau$tauG2, calculate_tau, calculate_ll)
             } else {
-                out <- negQ_G1(dat, theta, K, num_Z, Z_names, B,
-                  tauG1 = NULL, calculate_tau, calculate_ll) +
-                  negQ_G2(dat, theta, K, num_Z, Z_names, B, tauG2 = NULL,
-                    calculate_tau, calculate_ll)
+                out <- negQ_G1(dat, theta, K, num_Z, Z_names,
+                  B, tauG1 = NULL, calculate_tau, calculate_ll) +
+                  negQ_G2(dat, theta, K, num_Z, Z_names, B,
+                    tauG2 = NULL, calculate_tau, calculate_ll)
             }
             # print(theta);print(out)
         } else {
-            out <- list(tauG1 = negQ_G1(dat, theta, K, num_Z, Z_names,
-                B = NULL, tauG1 = NULL, calculate_tau, calculate_ll),
-                tauG2 = negQ_G2(dat, theta, K, num_Z, Z_names,
-                  B, tauG2 = NULL, calculate_tau, calculate_ll))
+            out <- list(tauG1 = negQ_G1(dat, theta, K, num_Z,
+                Z_names, B = NULL, tauG1 = NULL, calculate_tau,
+                calculate_ll), tauG2 = negQ_G2(dat, theta, K,
+                num_Z, Z_names, B, tauG2 = NULL, calculate_tau,
+                calculate_ll))
         }
         # if (is.nan(out)) { print(theta);print(out) }
     } else {
         if (!calculate_tau) {
             if (!calculate_ll) {
                 out <- negQ2_G1(dat, theta, K, num_Z, Z_names,
-                  XMint, B, tauG1 = tau$tauG1, calculate_tau, calculate_ll)
+                  XMint, B, tauG1 = tau$tauG1, calculate_tau,
+                  calculate_ll)
             } else {
                 out <- negQ2_G1(dat, theta, K, num_Z, Z_names,
                   XMint, B, tauG1 = NULL, calculate_tau, calculate_ll)
@@ -189,9 +193,9 @@ parameter_names <- function(dat, K, num_Z, Z_names, XMint) {
     variation <- if ("zipm" %in% class(dat))
         NULL else ifelse("zilonm" %in% class(dat), "xi0", "r")
     out <- c(paste0("beta", c(0:5, Z_names)), "delta", paste0("alpha",
-        rep(1:K, each = 2 + num_Z), rep(c(0:1, Z_names), K)), variation,
-        paste0("psi", 1:K)[-K], paste0("gamma", c(0:1, Z_names)),
-        "eta")
+        rep(1:K, each = 2 + num_Z), rep(c(0:1, Z_names), K)),
+        variation, paste0("psi", 1:K)[-K], paste0("gamma", c(0:1,
+            Z_names)), "eta")
     if (sum(XMint) != 2) {
         out <- out[-c(5, 6)[!XMint]]
     }
@@ -212,11 +216,13 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
     if (sum(dat$Mobs == 0) == 0) {
         index <- G1_index(dat, K, num_Z, XMint)
         cinit <- init2 <- init2[index]
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
+            calculate_tau = T)
         p <- length(init2)
         countEM <- NA
     } else {
-        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B, calculate_tau = T)
+        tau2 <- negQ(dat, init2, K, num_Z, Z_names, XMint, B,
+            calculate_tau = T)
         p <- length(init2)
         init <- rep(0, p)
         countEM <- 0
@@ -229,12 +235,14 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
             # m2 <-
             # nlminb(init,function(x)negQ(dat,x,K,num_Z,Z_names,
             # XMint,B,tau), lower = c(rep(-1000,6 +
-            # 2*K),rep(0, K-1),-1000,-1000,1e-6,1e-6), upper
-            # = c(rep(1000,6 + 2*K),rep(1, K-1),rep(1000,4)),
-            # control = list(eval.max=5000,iter.max=5000))
-            m <- constrOptim(init, function(x) negQ(dat, x, K,
-                num_Z, Z_names, XMint, B, tau), grad = NULL, ui = bd$ui,
-                ci = bd$ci, outer.iterations = 500, control = list(maxit = 50000))
+            # 2*K),rep(0, K-1),-1000,-1000,1e-6,1e-6),
+            # upper = c(rep(1000,6 + 2*K),rep(1,
+            # K-1),rep(1000,4)), control =
+            # list(eval.max=5000,iter.max=5000))
+            m <- constrOptim(init, function(x) negQ(dat, x,
+                K, num_Z, Z_names, XMint, B, tau), grad = NULL,
+                ui = bd$ui, ci = bd$ci, outer.iterations = 500,
+                control = list(maxit = 50000))
             # negQ(dat,true,K,num_Z,Z_names,
             # XMint,B,negQ(dat,true,K,num_Z,Z_names,
             # XMint,B,calculate_tau=T))
@@ -260,8 +268,8 @@ analysis <- function(dat, K, num_Z, Z_names, XMint, B, limits,
     negll <- negQ(dat, est, K, num_Z, Z_names, XMint, B, calculate_ll = T)
     AIC <- 2 * negll + 2 * p
     BIC <- 2 * negll + p * log(n)
-    out <- list(init = cinit, est = est, countEM = countEM, AIC = AIC,
-        BIC = BIC, tau2 = tau2)
+    out <- list(init = cinit, est = est, countEM = countEM,
+        AIC = AIC, BIC = BIC, tau2 = tau2)
     return(out)
 }
 
@@ -275,16 +283,16 @@ analysis2 <- function(dat, K, B, est, tau2, x1, x2, num_Z, Z_names,
     var <- diag(vcovar)
     # if (sum(var < 0) > 0) { hess <-
     # numDeriv::hessian(function(x) negQ(dat, x, K, num_Z,
-    # Z_names, XMint, B, calculate_ll = T), x = est) vcovar
-    # <- solve(hess) var <- diag(vcovar)
+    # Z_names, XMint, B, calculate_ll = T), x = est)
+    # vcovar <- solve(hess) var <- diag(vcovar)
     if (sum(var < 0) > 0) {
         # method 2: hessian matrix from EM approximation
         h.1 <- pracma::hessian(function(x) negQ(dat, x, K, num_Z,
             Z_names, XMint, B, tau2), x = est)
         # grad() function in numDeriv
         g2 <- function(y) {
-            numDeriv::grad(function(x) g(dat, x, y, K, num_Z, Z_names,
-                XMint, B), x = est)
+            numDeriv::grad(function(x) g(dat, x, y, K, num_Z,
+                Z_names, XMint, B), x = est)
         }
         # jacobian() function in numDeriv
         h.2 <- numDeriv::jacobian(g2, est)
@@ -325,25 +333,25 @@ realanalysis <- function(dat, distM_sequence, K_sequence, selection,
     doParallel::registerDoParallel(cl)
     parallel::clusterSetRNGStream(cl = cl, seed)
     i <- numeric()
-    models <- foreach(i = seq_len(niter), .multicombine = T, .packages = c("stats",
-        "flexmix", "MASS"), .combine = "list", .errorhandling = "pass") %dopar%
-        {
-            dat2 <- dat
-            class(dat2) <- c(iter$distM[i], class(dat2))
-            model_i <- tryCatch({
-                analysis(dat2, K = iter$K[i], num_Z, Z_names, XMint,
-                  B, limits, seed)
-            }, error = function(e) {
-                # print(e)
-                list(init = NA, est = NA, countEM = NA, AIC = Inf,
-                  BIC = Inf, tau2 = NA, e = e)
-            })
-            # model_i <- analysis(dat2, K = iter$K[i], num_Z,
-            # Z_names, XMint, B, limits, seed)
-            print(paste0("distM = ", iter$distM[i], ", K = ", iter$K[i],
-                " completed."))
-            return(model_i)
-        }
+    models <- foreach(i = seq_len(niter), .multicombine = T,
+        .packages = c("stats", "flexmix", "MASS"), .combine = "list",
+        .errorhandling = "pass") %dopar% {
+        dat2 <- dat
+        class(dat2) <- c(iter$distM[i], class(dat2))
+        model_i <- tryCatch({
+            analysis(dat2, K = iter$K[i], num_Z, Z_names, XMint,
+                B, limits, seed)
+        }, error = function(e) {
+            # print(e)
+            list(init = NA, est = NA, countEM = NA, AIC = Inf,
+                BIC = Inf, tau2 = NA, e = e)
+        })
+        # model_i <- analysis(dat2, K = iter$K[i], num_Z,
+        # Z_names, XMint, B, limits, seed)
+        print(paste0("distM = ", iter$distM[i], ", K = ", iter$K[i],
+            " completed."))
+        return(model_i)
+    }
     parallel::stopCluster(cl)
     if (niter == 1) {
         models <- list(models)
@@ -369,17 +377,17 @@ realanalysis <- function(dat, distM_sequence, K_sequence, selection,
             XMint, zval, mval)
     }, error = function(e) {
         print(e)
-        list(se = NA, MedZIM = data.frame(eff = rep(NA, 3), eff_se = rep(NA,
-            3)), e = e)
+        list(se = NA, MedZIM = data.frame(eff = rep(NA, 3),
+            eff_se = rep(NA, 3)), e = e)
     })
     # t2 <- Sys.time() print(paste0('EM = ',
     # format(difftime(t1, t0)), ', hessian = ',
     # format(difftime(t2, t1))))
 
-    results_parameters <- results(est = selected_model$est, se = analysis2_out$se,
-        init = selected_model$init)
-    paranames <- parameter_names(dat, K = selected_K, num_Z, Z_names,
-        XMint)
+    results_parameters <- results(est = selected_model$est,
+        se = analysis2_out$se, init = selected_model$init)
+    paranames <- parameter_names(dat, K = selected_K, num_Z,
+        Z_names, XMint)
     if (sum(dat$Mobs == 0) == 0) {
         index <- G1_index(dat, K = selected_K, num_Z, XMint)
         paranames <- paranames[index]

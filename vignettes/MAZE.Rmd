@@ -4,7 +4,7 @@ author:
 - Meilin Jiang^[University of Florida, meilin.jiang@ufl.edu]
 - Zhigang Li^[University of Florida, zhigang.li@ufl.edu]
 # date: "`r format(Sys.time(), '%d %B %Y')`"
-date: "January 30, 2023"
+date: "February 10, 2023"
 output: 
   rmarkdown::html_vignette
   # pdf_document: default
@@ -31,9 +31,11 @@ However, challenges arise in mediation analyses in datasets with an excessive nu
 
 To address the difficulties, we proposed a novel mediation analysis approach to estimate and test direct and indirect effects to handle zero-inflated mediators that are non-negative. The zero-inflated log-normal (ZILoN), zero-inflated negative binomial (ZINB), and zero-inflated Poisson (ZIP) mediators were considered as the possible options of distributions for these mediators. 
 
-The R package `MAZE` implements the proposed causal mediation analysis approach for zero-inflated mediators in the corresponding paper to estimate and test natural indirect effect (NIE). Given the zero-inflated nature, the mediation effect (i.e., NIE) can be decomposed in to two components NIE$_1$ and NIE$_2$.
+The R package `MAZE` implements the proposed causal mediation analysis approach for zero-inflated mediators to estimate and test natural indirect effect (NIE), natural direct effect (NDE), and controlled direct effect (CDE). Given the zero-inflated nature, the mediation effect (i.e., NIE) can be decomposed in to two components NIE$_1$ and NIE$_2$.
 
 ## 2. Model
+For simplicity, the subject index is suppressed, and confounders are not included in the equations, but they have been incorporated into `MAZE`.
+
 For an independent variable $X$, a zero-inflated mediator $M$ and a continuous outcome variable $Y$, the following regression equation is used to model the association between $Y$ and $(X,M)$:
 \begin{align}
 Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon, \label{ymodel}
@@ -180,6 +182,8 @@ The input arguments to the function are
 
 - `zval`: the value of confounders to be conditional on in estimating effects
 
+- `mval`: the fixed value of mediator to be conditional on in estimating CDE
+
 - `B`: the upper bound value B to be used in the probability mechanism of observing false zeros
 
 - `seed`: an optional seed number to control randomness for reproducibility. The default is 1
@@ -190,7 +194,7 @@ The input arguments to the function are
 
 A list object containing
 
-- `results_effects`: a data frame for the results of estimated mediation effect
+- `results_effects`: a data frame for the results of estimated effects
 
 - `results_parameters`: a data frame for the results of model parameters
 
@@ -222,10 +226,9 @@ maze_out <- MAZE(data=zinb10,
 
 ## results of selected mediation model
 maze_out$results_effects # indirect and direct effects
+maze_out$selected_disM # distribution of the mediator in the selected mediation model
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
-maze_out$selected_disM # distribution of the mediator in the selected mediation model
-
 ```
 
 Session Info

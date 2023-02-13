@@ -40,13 +40,13 @@
 ##' dat <- out$dat
 
 
-DataGen <- function(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL,
-    mval = 0) {
+DataGen <- function(distM, theta, K, num_Z = 0, n, B, x1, x2,
+    zval = NULL, mval = 0) {
     dat_placeholder <- data.frame(NULL)
     class(dat_placeholder) <- c(distM, class(dat_placeholder))
 
-    out <- DataGen_call(dat_placeholder, theta, K, num_Z, n, B,
-        x1, x2, zval, mval)
+    out <- DataGen_call(dat_placeholder, theta, K, num_Z, n,
+        B, x1, x2, zval, mval)
     return(out)
 }
 

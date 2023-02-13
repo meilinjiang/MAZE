@@ -22,7 +22,7 @@
 ##' @param seed an optional seed number to control randomness
 ##' @param ncore number of cores available for parallel computing
 ##' @return a list containing:
-##' - results_effects: a data frame for the results of estimated mediation effect,
+##' - results_effects: a data frame for the results of estimated effects,
 ##' - results_parameters: a data frame for the results of model parameters,
 ##' - selected_model_name: a string for the distribution of M and number of components K selected in the final mediation model
 ##' - BIC: a numeric value for the BIC of the final mediation model,
@@ -48,15 +48,16 @@
 ##' x1=0, x2=1, zval = NULL, mval = 0,
 ##' B=20, seed=1)
 ##' ## results of selected mediation model
-##' maze_out$results_effects # NIE1, NIE2, and NIE
+##' maze_out$results_effects # indirect and direct effects
 ##' maze_out$results_parameters # model parameters
 ##' maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 ##' maze_out$selected_disM # distribution of the mediator in the selected mediation model
 ##' }
 
-MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
-    selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE, FALSE),
-    x1, x2, zval = NULL, mval = 0, B = 20, seed = 1, ncore = 1) {
+MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"),
+    K = 1, selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE,
+        FALSE), x1, x2, zval = NULL, mval = 0, B = 20, seed = 1,
+    ncore = 1) {
     distM_sequence <- distM
     K_sequence <- K
     limits <- 0.001
@@ -82,8 +83,8 @@ MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1,
             B, seed, ncore)
     }, error = function(e) {
         print(e)
-        # list(results_effects = NA, results_parameters = NA,
-        # BIC = Inf, AIC = Inf, e = e)
+        # list(results_effects = NA, results_parameters =
+        # NA, BIC = Inf, AIC = Inf, e = e)
     })
     return(out)
 }
