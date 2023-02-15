@@ -4,8 +4,8 @@ k_to_ik <- function(para_k, n) {
 }
 
 expit <- function(t) {
-    # out <- exp(t)/(1 + exp(t)) out[t > 100] <- 1/(1 +
-    # exp(-t)) return(out)
+    # out <- exp(t)/(1 + exp(t)) out[t > 100]
+    # <- 1/(1 + exp(-t)) return(out)
     1/(1 + exp(-t))
 }
 
@@ -22,11 +22,14 @@ results <- function(est, se, init = NA, d = 5, ci_lb = NULL,
     }
     if (is.null(pval)) {
         pval <- (1 - pnorm(abs(est/se))) * 2
-        # pval <- ( 1-pt(abs(est/se),df=dim(dat)[1]-1) )*2
+        # pval <- (
+        # 1-pt(abs(est/se),df=dim(dat)[1]-1)
+        # )*2
     }
 
-    out <- data.frame(Initials = init, Estimate = est, SE = se,
-        CI_lower = ci_lb, CI_upper = ci_ub, Pvalue = pval)
+    out <- data.frame(Initials = init, Estimate = est,
+        SE = se, CI_lower = ci_lb, CI_upper = ci_ub,
+        Pvalue = pval)
     if (is.na(init)[1]) {
         out <- out[, -1]
     }

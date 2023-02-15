@@ -1,6 +1,6 @@
 Package: MAZE
 Title: Mediation Analysis for Zero-Inflated Mediators
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person(given = "Meilin",
            family = "Jiang",

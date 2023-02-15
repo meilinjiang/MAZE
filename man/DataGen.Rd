@@ -7,35 +7,36 @@
 DataGen(distM, theta, K, num_Z = 0, n, B, x1, x2, zval = NULL, mval = 0)
 }
 \arguments{
-\item{distM}{an character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively.}
+\item{distM}{distribution of the mediator. One of '\code{zilonm}', '\code{zinbm}', and '\code{zipm}' for zero-inflated log-normal, negative binomial, and Poisson mediators respectively}
 
 \item{theta}{vector of true parameter values}
 
-\item{K}{a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators}
+\item{K}{true number of component \eqn{K} in the zero-inflated mixture mediators. Default is \eqn{K=1} for zero-inflated (non-mixture) mediators}
 
 \item{num_Z}{number of confounder variables}
 
-\item{n}{number of observations}
+\item{n}{number of observations to generate}
 
-\item{B}{the upper bound value B to be used in the probability mechanism of observing false zeros}
+\item{B}{the upper bound value \eqn{B} to be used in the probability mechanism of observing false zeros}
 
 \item{x1}{the first value of independent variable of interest}
 
 \item{x2}{the second value of independent variable of interest}
 
-\item{zval}{the value of confounders to be conditional on in estimating effects}
+\item{zval}{the value of confounders to be conditional on when calculating true effects}
 
-\item{mval}{the fixed value of mediator to be conditional on in estimating CDE}
+\item{mval}{the fixed value of mediator to be conditional on when calculating true CDE}
 }
 \value{
-true_eff: a vector containing true effects
+true_eff: a vector containing true effects (NIE1, NIE2, NIE, NDE, and CDE)
+
 dat: a data frame containing variables:
 \itemize{
-\item X: an independent variable,
-\item Mobs: observed mediator values (with possibly false zeros)
-\item M: true mediator values,
-\item Y: an outcome,
-\item Z: confounder variables (if any)
+\item \code{X}: independent variable,
+\item \code{Mobs}: observed mediator values (with possibly false zeros)
+\item \code{M}: true mediator values,
+\item \code{Y}: outcome,
+\item \code{Z}: confounder variables (if any)
 }
 }
 \description{
@@ -52,12 +53,12 @@ psi_km1.tr <- c(0.6)
 gammas.tr <- c(-1.8, 0.5)
 eta.tr <- 1
 theta <- c(betas.tr, delta.tr, alphas.tr,
-xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
-out <- DataGen(distM='zilonm', theta, K=2, num_Z=0, n=200, B=20, x1=0, x2=1, zval=NULL, mval=0)
+           xi0.tr, psi_km1.tr, gammas.tr, eta.tr)
+out <- DataGen(distM = 'zilonm', theta, K = 2, num_Z=0,
+               n = 200, B = 20, x1 = 0, x2 = 1, zval = NULL, mval = 0)
 (true_eff <- out$true_eff)
 dat <- out$dat
 }
 \author{
-Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
-Meilin Jiang \href{mailto:meilin.jiang@ufl.edu}{meilin.jiang@ufl.edu}
+Meilin Jiang \href{mailto:meilin.jiang@ufl.edu}{meilin.jiang@ufl.edu} and Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
 }

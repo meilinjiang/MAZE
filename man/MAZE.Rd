@@ -24,33 +24,33 @@ MAZE(
 )
 }
 \arguments{
-\item{data}{a data frame containing variables: an independent variable X, a mediator M, an outcome Y, and confounder variables Z (if any). See example dataset: data(zinb10)}
+\item{data}{a data frame containing variables: an independent variable \eqn{X}, a mediator \eqn{M}, an outcome \eqn{Y}, and confounder variables \eqn{Z} (if any). See example dataset: \code{data(zinb10)}}
 
-\item{distM}{an optional character value for distribution to be used for the mediator. Possible choices are 'zilonm', 'zinbm', or 'zipm' for zero-inflated log-normal, negative binomial, or Poisson mediators respectively. By default, all three distributions will be fitted and the final mediation model is selected by AIC}
+\item{distM}{a vector with choices of the distribution of mediator to try with. One or more of '\code{zilonm}', '\code{zinbm}', and '\code{zipm}' for zero-inflated log-normal, negative binomial, and Poisson mediators respectively. Default is \code{c('zilonm', 'zinbm', 'zipm')} where all three distributions are fitted and the final mediation model is selected by model selection criterion \code{selection}}
 
-\item{K}{a user supplied sequence for the number of component K in the zero-inflated mixture mediators. Default is K = 1 for zero-inflated non-mixture mediators}
+\item{K}{a vector with choices of the number of component \eqn{K} in the zero-inflated mixture mediators to try with. Default is \eqn{K=1} for zero-inflated (non-mixture) mediators}
 
-\item{selection}{model selection criterion to be used when more than one model is fitted. Possible choices are 'AIC' and 'BIC'. Default is 'AIC'}
+\item{selection}{model selection criterion when more than one model (combination of different values in \code{distM} and \code{K}) is fitted. Either '\code{AIC}' or '\code{BIC}'. Default is '\code{AIC}'}
 
-\item{X}{name of the independent variable}
+\item{X}{name of the independent variable. Can be continuous or discrete}
 
-\item{M}{name of the mediator variable}
+\item{M}{name of the mediator variable. Non-negative values}
 
-\item{Y}{name of the outcome variable}
+\item{Y}{name of the outcome variable. Continuous values}
 
-\item{Z}{name(s) of confounder variables}
+\item{Z}{name(s) of confounder variables (if any)}
 
-\item{XMint}{a logical vector of length 2 indicating whether to include the interaction terms between (i) X and 1(M>0) and (ii) X and M. Default is c(TRUE, FALSE)}
+\item{XMint}{a logical vector of length 2 indicating whether to include the two exposure-mediator interaction terms between (i) \eqn{X} and \eqn{1_{(M>0)}} and (ii) \eqn{X} and \eqn{M}. Default is \code{c(TRUE, FALSE)}, which only includes the first}
 
 \item{x1}{the first value of independent variable of interest}
 
 \item{x2}{the second value of independent variable of interest}
 
-\item{zval}{the value of confounders to be conditional on in estimating effects}
+\item{zval}{a vector of value(s) of confounders to be conditional on when estimating effects}
 
-\item{mval}{the fixed value of mediator to be conditional on in estimating CDE}
+\item{mval}{the fixed value of mediator to be conditional on when estimating CDE}
 
-\item{B}{the upper bound value B to be used in the probability mechanism of observing false zeros}
+\item{B}{the upper bound value \eqn{B} to be used in the probability mechanism of observing false zeros}
 
 \item{seed}{an optional seed number to control randomness}
 
@@ -59,13 +59,13 @@ MAZE(
 \value{
 a list containing:
 \itemize{
-\item results_effects: a data frame for the results of estimated effects,
-\item results_parameters: a data frame for the results of model parameters,
-\item selected_model_name: a string for the distribution of M and number of components K selected in the final mediation model
-\item BIC: a numeric value for the BIC of the final mediation model,
-\item AIC: a numeric value for the AIC of the final mediation model,
-\item models: a list with all fitted models
-\item analysis2_out: a list with output from analysis2() function (used for internal check)
+\item \code{results_effects}: a data frame for the results of estimated effects (NIE1, NIE2, NIE, NDE, and CDE)
+\item \code{results_parameters}: a data frame for the results of model parameters
+\item \code{selected_model_name}: a string for the distribution of \eqn{M} and number of components \eqn{K} selected in the final mediation model
+\item \code{BIC}: a numeric value for the BIC of the final mediation model
+\item \code{AIC}: a numeric value for the AIC of the final mediation model
+\item \code{models}: a list with all fitted models
+\item \code{analysis2_out}: a list with output from \code{analysis2()} function (used for internal check)
 }
 }
 \description{
@@ -74,26 +74,29 @@ A novel mediation modeling approach to address zero-inflated mediators containin
 \details{
 For an independent variable \eqn{X}, a zero-inflated mediator \eqn{M} and a continuous outcome variable \eqn{Y}, the following regression equation is used to model the association between \eqn{Y} and \eqn{(X,M)}:
 \deqn{Y_{xm1_{(m>0)}}=\beta_0+\beta_1m+\beta_2 1_{(m>0)}+\beta_3x+\beta_4x1_{(m>0)}+\beta_5xm+\epsilon}
+Users can choose to include either one, both, or none of the two exposure-mediator interaction terms between (i) \eqn{X} and \eqn{1_{(M>0)}} and (ii) \eqn{X} and \eqn{M} using the argument \code{XMint}.
+
+For mediators, zero-inflated log-normal, zero-inflated negative binomial, and zero-inflated Poisson distributions are considered and can be specified through the argument \code{distM}.
+
+The indirect and direct effects (NIE1, NIE2, NIE, NDE, and CDE) are estimated for \eqn{X} changing from \code{x1} to \code{x2}. When confounders are present, the conditional effects are estimated given the fixed value \code{zval}.
 }
 \examples{
 data(zinb10)
 \donttest{
-maze_out <- MAZE(data=zinb10,
-distM=c('zilonm', 'zinbm', 'zipm'),
-K = 1,
-selection = 'AIC',
-X='X', M='Mobs', Y='Y', Z=NULL,
-XMint = c(TRUE, FALSE),
-x1=0, x2=1, zval = NULL, mval = 0,
-B=20, seed=1)
+maze_out <- MAZE(data = zinb10,
+                 distM = c('zilonm', 'zinbm', 'zipm'),  K = 1,
+                 selection = 'AIC',
+                 X = 'X', M = 'Mobs', Y = 'Y', Z = NULL,
+                 XMint = c(TRUE, FALSE),
+                 x1 = 0, x2 = 1, zval = NULL, mval = 0,
+                 B = 20, seed = 1)
 ## results of selected mediation model
 maze_out$results_effects # indirect and direct effects
+maze_out$selected_model_name # selected distribution of the mediator and number of components K
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
-maze_out$selected_disM # distribution of the mediator in the selected mediation model
 }
 }
 \author{
-Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
-Meilin Jiang \href{mailto:meilin.jiang@ufl.edu}{meilin.jiang@ufl.edu}
+Meilin Jiang \href{mailto:meilin.jiang@ufl.edu}{meilin.jiang@ufl.edu} and Zhigang Li \href{mailto:zhigang.li@ufl.edu}{zhigang.li@ufl.edu}
 }
