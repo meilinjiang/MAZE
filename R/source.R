@@ -398,13 +398,14 @@ realanalysis <- function(dat, distM_sequence, K_sequence,
     }
     names(models) <- apply(iter, 1, function(t) paste0(t,
         collapse = "_K"))
-    # print(models)
+    print(models)
 
     AICs <- sapply(models, function(x) x[["AIC"]])
     BICs <- sapply(models, function(x) x[["BIC"]])
     selection_criteria <- sapply(models, function(x) x[[selection]])
     selected_model <- models[[which.min(selection_criteria)]]
     selected_model_name <- names(models)[[which.min(selection_criteria)]]
+    print(paste0("selected_model_name: ",selected_model_name))
     selected_dist <- strsplit(selected_model_name,
         "_K")[[1]][1]
     selected_K <- as.numeric(strsplit(selected_model_name,
@@ -421,7 +422,7 @@ realanalysis <- function(dat, distM_sequence, K_sequence,
     }, error = function(e) {
         print(e)
         list(se = NA, MedZIM = data.frame(eff = rep(NA,
-            3), eff_se = rep(NA, 3)), e = e)
+            5), eff_se = rep(NA, 5)), e = e)
     })
     # t2 <- Sys.time() print(paste0('EM = ',
     # format(difftime(t1, t0)), ', hessian = ',
