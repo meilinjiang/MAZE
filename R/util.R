@@ -4,8 +4,8 @@ k_to_ik <- function(para_k, n) {
 }
 
 expit <- function(t) {
-    # out <- exp(t)/(1 + exp(t)) out[t > 100]
-    # <- 1/(1 + exp(-t)) return(out)
+    # out <- exp(t)/(1 + exp(t)) out[t >
+    # 100] <- 1/(1 + exp(-t)) return(out)
     1/(1 + exp(-t))
 }
 
@@ -13,8 +13,8 @@ euclidean_dist <- function(p, q) {
     sqrt(sum((q - p)^2))
 }
 
-results <- function(est, se, init = NA, d = 5, ci_lb = NULL,
-    ci_ub = NULL, pval = NULL) {
+results <- function(est, se, init = NA, d = 5,
+    ci_lb = NULL, ci_ub = NULL, pval = NULL) {
     # 95% CI
     if (is.null(ci_lb) & is.null(ci_ub)) {
         ci_lb <- est - qnorm(0.975) * se
