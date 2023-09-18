@@ -59,7 +59,7 @@ MAZE(
 \value{
 a list containing:
 \itemize{
-\item \code{results_effects}: a data frame for the results of estimated effects (NIE1, NIE2, NIE, NDE, and CDE)
+\item \code{results_effects}: a data frame for the results of estimated effects (NIE1, NIE2, NIE, NDE, and CDE). '_cond' for conditional effects at \code{zval} and '_avg' for average effects
 \item \code{results_parameters}: a data frame for the results of model parameters
 \item \code{selected_model_name}: a string for the distribution of \eqn{M} and number of components \eqn{K} selected in the final mediation model
 \item \code{BIC}: a numeric value for the BIC of the final mediation model

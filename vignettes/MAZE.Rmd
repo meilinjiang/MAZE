@@ -194,7 +194,7 @@ The input arguments to the function are
 
 A list object containing
 
-- `results_effects`: a data frame for the results of estimated effects (NIE1, NIE2, NIE, NDE, and CDE)
+- `results_effects`: a data frame for the results of estimated effects (NIE1, NIE2, NIE, NDE, and CDE).  "_cond" for conditional effects at `zval` and "_avg" for average effects
 
 - `results_parameters`: a data frame for the results of model parameters
 
@@ -223,7 +223,7 @@ maze_out <- MAZE(data = zinb10,
                  x1 = 0, x2 = 1, zval = NULL, mval = 0,
                  B = 20, seed = 1)
 ## results of selected mediation model
-maze_out$results_effects # indirect and direct effects
+maze_out$results_effects # indirect and direct effects. "_cond" for conditional effects and "_avg" for average effects 
 maze_out$selected_model_name # distribution of the mediator and number of components K in the selected mediation model
 maze_out$results_parameters # model parameters
 maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
