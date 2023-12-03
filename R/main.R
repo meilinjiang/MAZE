@@ -57,18 +57,16 @@
 ##' maze_out$BIC; maze_out$AIC # BIC and AIC of the selected mediation model
 ##' }
 
-MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"),
-    K = 1, selection = "AIC", X, M, Y, Z = NULL, XMint = c(TRUE,
-        FALSE), x1, x2, zval = NULL, mval = 0, B = 20, seed = 1,
-    ncore = 1) {
+MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"), K = 1, selection = "AIC",
+    X, M, Y, Z = NULL, XMint = c(TRUE, FALSE), x1, x2, zval = NULL, mval = 0, B = 20,
+    seed = 1, ncore = 1) {
     distM_sequence <- distM
     K_sequence <- K
     limits <- 0.001
     # set.seed(seed)
 
     data <- as.data.frame(data)
-    dat <- data.frame(X = data[, X], Y = data[, Y], Mobs = data[,
-        M])
+    dat <- data.frame(X = data[, X], Y = data[, Y], Mobs = data[, M])
     num_Z <- length(Z)
     if (is.null(Z)) {
         Z_names <- NULL
@@ -81,13 +79,12 @@ MAZE <- function(data, distM = c("zilonm", "zinbm", "zipm"),
     dat <- dat[complete.cases(dat), ]
 
     out <- tryCatch({
-        realanalysis(dat, distM_sequence, K_sequence, selection,
-            XMint, x1, x2, zval, num_Z, Z_names, mval, limits,
-            B, seed, ncore)
+        realanalysis(dat, distM_sequence, K_sequence, selection, XMint, x1, x2, zval,
+            num_Z, Z_names, mval, limits, B, seed, ncore)
     }, error = function(e) {
         print(paste0("realanalysis()_error = ", e))
-        # list(results_effects = NA, results_parameters =
-        # NA, BIC = Inf, AIC = Inf, e = e)
+        # list(results_effects = NA, results_parameters = NA, BIC = Inf, AIC =
+        # Inf, e = e)
     })
     return(out)
 }
